@@ -1,32 +1,70 @@
 // ====== CONFIG ======
-const TWITCH_CHANNEL = "alveussanctuary"; // set to "uxfestival" on show day
+// Use a live channel for testing; set to "uxfestival" on show day.
+const TWITCH_CHANNEL = "alveussanctuary";
 
-// ====== Build Twitch URLs with required parent domains ======
+// ====== Gather allowed parents from <meta> tags ======
 const parentMeta = Array.from(document.querySelectorAll('meta[name="twitch-parent"]'));
 const parents = parentMeta.length ? parentMeta.map(m => m.content) : [location.hostname];
 
-function buildPlayerUrl(channel){
-  const params = new URLSearchParams({
-    channel,
-    autoplay: "true",
-    muted: "true",
-    playsinline: "true",
-    parent: parents[0]
+// ====== Init Twitch Player via official JS API (autoplay-safe) ======
+function initTwitchPlayer() {
+  const mount = document.getElementById("twitchPlayer");
+  const startBtn = document.getElementById("playerStart");
+  if (!mount || !window.Twitch || !Twitch.Player) return;
+
+  const player = new Twitch.Player(mount, {
+    channel: TWITCH_CHANNEL,
+    width: "100%",
+    height: "100%",
+    autoplay: true,
+    muted: true,
+    // Twitch demands the full array of parents
+    parent: parents
   });
-  parents.slice(1).forEach(p => params.append("parent", p));
-  return `https://player.twitch.tv/?${params.toString()}`;
+
+  // Required for autoplay across browsers
+  player.setMuted(true);
+
+  let playing = false;
+
+  player.addEventListener(Twitch.Player.PLAY, () => {
+    playing = true;
+    if (startBtn) startBtn.hidden = true;
+  });
+
+  player.addEventListener(Twitch.Player.PAUSE, () => {
+    playing = false;
+  });
+
+  // When player is ready, attempt to play once it's visible
+  player.addEventListener(Twitch.Player.READY, () => {
+    setTimeout(() => {
+      player.setMuted(true);
+      try { player.play(); } catch (_) {}
+      // If autoplay was blocked, reveal the manual Play button
+      setTimeout(() => { if (!playing && startBtn) startBtn.hidden = false; }, 800);
+    }, 50);
+  });
+
+  // Manual fallback (user gesture always allowed)
+  if (startBtn) {
+    startBtn.addEventListener("click", () => {
+      player.setMuted(true);
+      try { player.play(); } catch (_) {}
+      startBtn.hidden = true;
+    });
+  }
 }
 
+// ====== Build Chat URL (iframe) ======
 function buildChatUrl(channel){
   const params = new URLSearchParams({ parent: parents[0] });
   parents.slice(1).forEach(p => params.append("parent", p));
   return `https://www.twitch.tv/embed/${channel}/chat?darkpopout&${params.toString()}`;
 }
+document.getElementById("twitchChat").src = buildChatUrl(TWITCH_CHANNEL);
 
-document.getElementById("twitchPlayer").src = buildPlayerUrl(TWITCH_CHANNEL);
-document.getElementById("twitchChat").src   = buildChatUrl(TWITCH_CHANNEL);
-
-// ====== HUD clock (topline) ======
+// ====== HUD clock ======
 function two(n){ return String(n).padStart(2, "0"); }
 function updateHudClock(){
   const d = new Date();
@@ -45,11 +83,11 @@ const elLat  = document.getElementById("statLatency");
 const elPing = document.getElementById("statPing");
 const elCpu  = document.getElementById("statCpu");
 
-// Source is the iframe size (approx “source” feel)
 function updateSourceDims(){
-  const iframe = document.getElementById("twitchPlayer");
-  if (!iframe) return;
-  const rect = iframe.getBoundingClientRect();
+  // Measure the mounted player area (div), not an iframe
+  const mount = document.getElementById("twitchPlayer");
+  if (!mount) return;
+  const rect = mount.getBoundingClientRect();
   elSrc.textContent = `${Math.round(rect.width)}×${Math.round(rect.height)}`;
 }
 
@@ -111,3 +149,6 @@ document.querySelectorAll("[data-close]").forEach(btn=>{
 document.querySelectorAll(".modal").forEach(m=>{
   m.addEventListener("click", (e)=>{ if (e.target === m) closeModal(m); });
 });
+
+// Start the player once the page is visible/painted
+window.addEventListener("load", initTwitchPlayer);
