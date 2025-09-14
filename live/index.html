@@ -3,20 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>UX_004</title>
+  <title>UX_004 — Live</title>
 
-  <!-- Favicon in repo root -->
   <link rel="icon" href="../favicon.ico" type="image/x-icon" />
-
-  <!-- Live stylesheet in the same folder -->
   <link rel="stylesheet" href="./style.css" />
 
-  <!-- Twitch requires every hosting domain listed as a parent -->
+  <!-- Twitch requires each hosting domain listed as a parent -->
   <meta name="twitch-parent" content="uxfest.live" />
   <meta name="twitch-parent" content="whoiseve.github.io" />
 </head>
 <body class="moody">
-  <!-- Background video -->
+  <!-- Background -->
   <div class="bg-wrap">
     <video class="bg-media" autoplay muted loop playsinline poster="./media/bg_poster.jpg">
       <source src="./media/bg.webm" type="video/webm" />
@@ -25,7 +22,7 @@
     <div class="bg-overlay"></div>
   </div>
 
-  <!-- TOP BAR -->
+  <!-- Top bar -->
   <header class="topbar">
     <div class="topbar__left">
       <span class="badge">USER_AUTHORIZED: LEVEL_2_CLEARANCE</span>
@@ -36,9 +33,9 @@
     </div>
   </header>
 
-  <!-- MAIN SHELL -->
+  <!-- Main shell -->
   <main class="shell">
-    <!-- LEFT STATS RAIL -->
+    <!-- Left telemetry rail -->
     <aside class="rail">
       <div class="rail__box">
         <div class="rail__title">TELEMETRY</div>
@@ -58,17 +55,21 @@
       <div class="rail__stripe"></div>
     </aside>
 
-    <!-- STAGE (PLAYER + CHAT) -->
+    <!-- Stage: player + chat -->
     <section class="stage">
       <div class="player-wrap">
         <div class="player-box">
-          <!-- Twitch Player API mounts here (no manual iframe) -->
-          <div id="twitchPlayer" class="live-embed"></div>
+          <!-- Native Twitch player iframe (src set by live.js) -->
+          <iframe
+            id="twitchPlayer"
+            class="live-embed"
+            title="Twitch Player"
+            allow="autoplay; fullscreen; picture-in-picture"
+            frameborder="0"
+            src="">
+          </iframe>
 
-          <!-- remove 'hidden' -->
-          <button id="playerStart" class="player-start">▶ PLAY</button>
-
-          <!-- SECURITY CAM OVERLAY -->
+          <!-- HUD overlay -->
           <div class="hud">
             <div class="hud__corners"></div>
             <div class="hud__topline">
@@ -93,7 +94,7 @@
       </aside>
     </section>
 
-    <!-- PANELS (below video+chat) -->
+    <!-- Panels -->
     <section class="panels">
       <button class="btn panel" data-panel="support">Support</button>
       <button class="btn panel" data-panel="shop">Shop</button>
@@ -102,7 +103,7 @@
     </section>
   </main>
 
-  <!-- MODALS -->
+  <!-- Modals -->
   <div class="modal" id="modalSupport" hidden>
     <div class="modal__card">
       <div class="modal__head">
@@ -128,8 +129,8 @@
       </div>
       <div class="modal__body">
         <div class="shop-grid">
-          <!-- Optional image; remove if you haven't copied it into /live/media -->
-          <img src="./media/merch_preview.jpg" alt="Merch preview" class="shop-img" />
+          <!-- optional preview image -->
+          <!-- <img src="./media/merch_preview.jpg" alt="Merch preview" class="shop-img" /> -->
           <div class="shop-links">
             <a class="btn" href="https://userexperiencemedia.com/shop" target="_blank" rel="noopener">Open Store</a>
           </div>
@@ -138,8 +139,6 @@
     </div>
   </div>
 
-  <!-- Twitch Player API + your script -->
-  <script src="https://player.twitch.tv/js/embed/v1.js"></script>
   <script src="./live.js"></script>
 </body>
 </html>
