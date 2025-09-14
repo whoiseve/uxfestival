@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>UX_004 — Live</title>
+  <link rel="icon" href="../favicon.ico" type="image/x-icon" />
+
+  <!-- Reuse your existing stylesheet -->
+  <link rel="stylesheet" href="./style.css" />
+
+  <!-- Twitch embed: declare all parent hosts you’ll use -->
+  <meta name="twitch-parent" content="uxfest.live">
+  <meta name="twitch-parent" content="yourusername.github.io">
+</head>
+<body class="moody">
+  <!-- Background video (reused) -->
+  <div class="bg-wrap">
+    <video class="bg-media" autoplay muted loop playsinline poster="../media/bg_poster.jpg">
+      <source src="../media/bg.webm" type="video/webm" />
+      <source src="../media/bg.mp4"  type="video/mp4" />
+    </video>
+    <div class="bg-overlay"></div>
+  </div>
+
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <div class="topbar__left">
+      <span class="badge">USER_AUTHORIZED: LEVEL_2_CLEARANCE</span>
+      <span class="badge badge--accent">GRID: UX_004</span>
+    </div>
+    <div class="topbar__right">
+      <a class="btn btn-ghost sm" href="https://twitch.tv/uxfestival" target="_blank" rel="noopener">Join_Transmission</a>
+    </div>
+  </header>
+
+  <!-- MAIN SHELL -->
+  <main class="shell">
+    <!-- LEFT STATS RAIL -->
+    <aside class="rail">
+      <div class="rail__box">
+        <div class="rail__title">TELEMETRY</div>
+        <dl class="kv">
+          <div><dt>Bitrate</dt><dd id="statBitrate">—</dd></div>
+          <div><dt>Source</dt><dd id="statSource">—</dd></div>
+          <div><dt>FPS</dt><dd id="statFps">—</dd></div>
+          <div><dt>Latency</dt><dd id="statLatency">—</dd></div>
+          <div><dt>Ping</dt><dd id="statPing">—</dd></div>
+          <div><dt>CPU</dt><dd id="statCpu">—</dd></div>
+        </dl>
+      </div>
+      <div class="rail__box">
+        <div class="rail__title">NODE</div>
+        <div class="rail__meta">VAN-BC • REV 2025-11-21</div>
+      </div>
+      <div class="rail__stripe"></div>
+    </aside>
+
+    <!-- STAGE (PLAYER + CHAT) -->
+    <section class="stage">
+      <div class="player-wrap">
+        <!-- 16:9 box -->
+        <div class="player-box">
+          <iframe
+            id="twitchPlayer"
+            class="live-embed"
+            title="Twitch Player"
+            allow="autoplay; fullscreen; picture-in-picture"
+            frameborder="0"
+            src="">
+          </iframe>
+
+          <!-- SECURITY CAM OVERLAY -->
+          <div class="hud">
+            <div class="hud__corners"></div>
+            <div class="hud__topline">
+              <span class="dot">REC</span>
+              <span class="chan">CHANNEL: UXFESTIVAL</span>
+              <span class="timecode" id="hudClock">--:--:--</span>
+            </div>
+            <div class="hud__scanlines"></div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="chat">
+        <iframe
+          id="twitchChat"
+          class="chat-embed"
+          frameborder="0"
+          scrolling="no"
+          title="Twitch Chat"
+          src="">
+        </iframe>
+      </aside>
+    </section>
+
+    <!-- PANELS (below video+chat) -->
+    <section class="panels">
+      <button class="btn panel" data-panel="support">Support</button>
+      <button class="btn panel" data-panel="shop">Shop</button>
+      <a class="btn panel" href="https://discord.gg/your-invite" target="_blank" rel="noopener">Enter_Venue</a>
+      <a class="btn panel" href="https://twitch.tv/uxfestival" target="_blank" rel="noopener">Join_Transmission</a>
+    </section>
+  </main>
+
+  <!-- MODALS -->
+  <div class="modal" id="modalSupport" hidden>
+    <div class="modal__card">
+      <div class="modal__head">
+        <div class="modal__title">Support</div>
+        <button class="btn btn-ghost sm modal__close" data-close>&times;</button>
+      </div>
+      <div class="modal__body">
+        <p>Support the artists & team:</p>
+        <ul class="links">
+          <li><a href="#" target="_blank" rel="noopener">Artist Donations</a></li>
+          <li><a href="#" target="_blank" rel="noopener">Team Tip Jar</a></li>
+          <li><a href="#" target="_blank" rel="noopener">Patreon</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="modalShop" hidden>
+    <div class="modal__card">
+      <div class="modal__head">
+        <div class="modal__title">Shop</div>
+        <button class="btn btn-ghost sm modal__close" data-close>&times;</button>
+      </div>
+      <div class="modal__body">
+        <div class="shop-grid">
+          <img src="../media/merch_preview.jpg" alt="Merch preview" class="shop-img" />
+          <div class="shop-links">
+            <a class="btn" href="https://userexperiencemedia.com/shop" target="_blank" rel="noopener">Open Store</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="./live.js"></script>
+</body>
+</html>
