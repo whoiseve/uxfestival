@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>UX_004 — Live</title>
+  <title>UX_004</title>
 
   <link rel="icon" href="../favicon.ico" type="image/x-icon" />
   <link rel="stylesheet" href="./style.css" />
@@ -48,9 +48,19 @@
           <div><dt>CPU</dt><dd id="statCpu">—</dd></div>
         </dl>
       </div>
-      <div class="rail__box">
+      <div class="rail__box" id="nodeBox">
         <div class="rail__title">NODE</div>
         <div class="rail__meta">VAN-BC • REV 2025-11-21</div>
+        <div class="rail__meta">NYC-US • SYS 2025-10-04</div>
+        <div class="rail__meta">TKO-JP • UPG 2026-01-12</div>
+        <div class="rail__meta">LON-UK • BLD 2025-09-30</div>
+        <div class="rail__meta">SFO-US • REV 2025-12-15</div>
+        <div class="rail__meta">SYD-AU • OPS 2026-02-22</div>
+        <div class="rail__meta">BER-DE • PTC 2025-11-05</div>
+        <div class="rail__meta">TOR-CA • DEP 2025-12-01</div>
+        <div class="rail__meta">HKG-HK • SEC 2026-03-09</div>
+        <div class="rail__meta">AMS-NL • TST 2025-10-27</div>
+        <div class="rail__meta">DXB-AE • LOG 2025-11-18</div>
       </div>
       <div class="rail__stripe"></div>
     </aside>
@@ -96,49 +106,12 @@
 
     <!-- Panels -->
     <section class="panels">
-      <button class="btn panel" data-panel="support">Support</button>
-      <button class="btn panel" data-panel="shop">Shop</button>
-      <a class="btn panel" href="https://discord.gg/your-invite" target="_blank" rel="noopener">Enter_Venue</a>
-      <a class="btn panel" href="https://twitch.tv/uxfestival" target="_blank" rel="noopener">Join_Transmission</a>
+      <a class="btn panel" href="https://discord.gg/your-invite" target="_blank" rel="noopener">SUPPORT</a>
+      <a class="btn panel" href="https://twitch.tv/uxfestival" target="_blank" rel="noopener">SHOP</a>
+      <a class="btn panel" href="https://discord.gg/your-invite" target="_blank" rel="noopener">ENTER_VENUE</a>
+      <a class="btn panel" href="https://twitch.tv/uxfestival" target="_blank" rel="noopener">VIEW_Transmission</a>
     </section>
   </main>
-
-  <!-- Modals -->
-  <div class="modal" id="modalSupport" hidden>
-    <div class="modal__card">
-      <div class="modal__head">
-        <div class="modal__title">Support</div>
-        <button class="btn btn-ghost sm modal__close" data-close>&times;</button>
-      </div>
-      <div class="modal__body">
-        <p>Support the artists & team:</p>
-        <ul class="links">
-          <li><a href="#" target="_blank" rel="noopener">Artist Donations</a></li>
-          <li><a href="#" target="_blank" rel="noopener">Team Tip Jar</a></li>
-          <li><a href="#" target="_blank" rel="noopener">Patreon</a></li>
-        </ul>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal" id="modalShop" hidden>
-    <div class="modal__card">
-      <div class="modal__head">
-        <div class="modal__title">Shop</div>
-        <button class="btn btn-ghost sm modal__close" data-close>&times;</button>
-      </div>
-      <div class="modal__body">
-        <div class="shop-grid">
-          <!-- optional preview image -->
-          <!-- <img src="./media/merch_preview.jpg" alt="Merch preview" class="shop-img" /> -->
-          <div class="shop-links">
-            <a class="btn" href="https://userexperiencemedia.com/shop" target="_blank" rel="noopener">Open Store</a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <script src="./live.js"></script>
 </body>
 </html>
