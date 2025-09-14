@@ -106,42 +106,64 @@ body{
 .links li{margin:.35rem 0}
 
 
-.hud__topline {
-  position: absolute;
-  top: 20px;                    /* moved down slightly */
-  left: 25px;                   /* inset from edges */
-  right: 25px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 0.5rem;
-
-  font-size: 0.8rem;            /* smaller, CCTV style */
-  font-family: PPSupplyMono, "Space Mono", ui-monospace, monospace;
-  color: #e9e5e4;
-  text-shadow: none;
+.hud{
+  position:absolute; inset:0;
+  pointer-events:none;
+  color:#e9e5e4;
+  font-family:PPSupplyMono,"Space Mono",ui-monospace,monospace;
+  z-index: 2; /* sits above the video iframe */
 }
 
-.hud__topline > div {
-  background: rgba(0, 0, 0, 0.6);   /* translucent black box */
-  padding: 2px 6px;                 /* space inside box */
-  border-radius: 2px;               /* small corner rounding */
-  backdrop-filter: blur(2px);       /* makes text pop */
-  border: 1px solid rgba(255,255,255,0.15); /* faint outline */
-  white-space: nowrap;              /* keeps text inline */
+/* corner frame */
+.hud__corners{
+  position:absolute; inset:0;
+  z-index: 3;
+}
+.hud__corners::before,
+.hud__corners::after{
+  content:"";
+  position:absolute; inset:12px;
+  border:2px solid rgba(233,229,228,.35);
+  clip-path: polygon(0 0,18px 0,18px 2px,2px 2px,2px 18px,0 18px,
+    0 calc(100% - 18px),2px calc(100% - 18px),2px calc(100% - 2px),
+    18px calc(100% - 2px),18px 100%,calc(100% - 18px) 100%,
+    calc(100% - 18px) calc(100% - 2px),calc(100% - 2px) calc(100% - 2px),
+    calc(100% - 2px) calc(100% - 18px),100% calc(100% - 18px),100% 18px,
+    calc(100% - 2px) 18px,calc(100% - 2px) 2px,calc(100% - 18px) 2px,calc(100% - 18px) 0);
+}
+
+/* scanlines: below labels, above video */
+.hud__scanlines{
+  position:absolute; inset:0;
+  z-index: 2;
+  opacity:.35;
+  background:
+    linear-gradient(0deg, transparent 0, rgba(255,255,255,.06) 1px, transparent 2px);
+  background-size:100% 3px;
+  mix-blend-mode: soft-light; /* optional: makes lines sit nicer on bright scenes */
+}
+
+/* topline boxes (REC / CHANNEL / time) */
+.hud__topline{
+  position:absolute; top:20px; left:25px; right:25px;
+  display:flex; justify-content:space-between; align-items:center; gap:.5rem;
+  font-size:.8rem; color:#e9e5e4; text-shadow:none;
+  z-index: 4; /* ensure it sits above scanlines/corners */
+}
+.hud__topline > div{
+  background: rgba(0,0,0,.6);
+  padding:2px 6px;
+  border-radius:2px;
+  backdrop-filter: blur(2px);
+  border:1px solid rgba(255,255,255,.15);
+  white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
-
-.hud__topline .dot::before {
-  content: "";
-  display: inline-block;
-  width: 0.5rem;
-  height: 0.5rem;
-  border-radius: 50%;
-  background: #d61106;
-  margin-right: 0.4rem;
-  box-shadow: 0 0 8px #d61106;
+.hud .dot::before{
+  content:""; display:inline-block; width:.5rem; height:.5rem; border-radius:50%;
+  background:#d61106; margin-right:.4rem; box-shadow:0 0 8px #d61106;
 }
+
 
 
 
@@ -150,5 +172,5 @@ body{
   transition: filter 120ms ease;
 }
 .rail__meta.flash {
-  filter: brightness(1.35);
+  filter: brightness(1.55);
 }
