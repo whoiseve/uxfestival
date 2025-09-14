@@ -1,6 +1,6 @@
 // ====== CONFIG ======
 // Use a live channel for testing; set to "uxfestival" on show day.
-const TWITCH_CHANNEL = "alveussanctuary";
+const TWITCH_CHANNEL = "madsy";
 
 // ====== Gather allowed parents from <meta> tags ======
 const parentMeta = Array.from(document.querySelectorAll('meta[name="twitch-parent"]'));
