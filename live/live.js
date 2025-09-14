@@ -8,53 +8,37 @@ const parents = parentMeta.length ? parentMeta.map(m => m.content) : [location.h
 
 // ====== Init Twitch Player via official JS API (autoplay-safe) ======
 function initTwitchPlayer() {
-  const mount = document.getElementById("twitchPlayer");
+  const mount   = document.getElementById("twitchPlayer");
   const startBtn = document.getElementById("playerStart");
-  if (!mount || !window.Twitch || !Twitch.Player) return;
+  const chat    = document.getElementById("twitchChat");
 
+  // Build chat right away
+  const chatParams = new URLSearchParams({ parent: parents[0] });
+  parents.slice(1).forEach(p => chatParams.append("parent", p));
+  chat.src = `https://www.twitch.tv/embed/${TWITCH_CHANNEL}/chat?darkpopout&${chatParams.toString()}`;
+
+  // Create the player WITHOUT trying to autoplay at all
   const player = new Twitch.Player(mount, {
     channel: TWITCH_CHANNEL,
     width: "100%",
     height: "100%",
-    autoplay: true,
+    autoplay: false,      // <- key change
     muted: true,
-    // Twitch demands the full array of parents
     parent: parents
   });
-
-  // Required for autoplay across browsers
   player.setMuted(true);
 
-  let playing = false;
-
-  player.addEventListener(Twitch.Player.PLAY, () => {
-    playing = true;
-    if (startBtn) startBtn.hidden = true;
-  });
-
-  player.addEventListener(Twitch.Player.PAUSE, () => {
-    playing = false;
-  });
-
-  // When player is ready, attempt to play once it's visible
-  player.addEventListener(Twitch.Player.READY, () => {
-    setTimeout(() => {
-      player.setMuted(true);
-      try { player.play(); } catch (_) {}
-      // If autoplay was blocked, reveal the manual Play button
-      setTimeout(() => { if (!playing && startBtn) startBtn.hidden = false; }, 800);
-    }, 50);
-  });
-
-  // Manual fallback (user gesture always allowed)
+  // Keep the button visible until the user clicks
   if (startBtn) {
     startBtn.addEventListener("click", () => {
       player.setMuted(true);
       try { player.play(); } catch (_) {}
-      startBtn.hidden = true;
+      startBtn.style.display = "none"; // hide only after the user requested play
     });
   }
 }
+
+window.addEventListener("load", initTwitchPlayer);
 
 // ====== Build Chat URL (iframe) ======
 function buildChatUrl(channel){
