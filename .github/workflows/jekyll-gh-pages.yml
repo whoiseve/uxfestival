@@ -1,5 +1,4 @@
-# Deploy Jekyll with GitHub Pages
-name: Deploy Jekyll with GitHub Pages
+name: Deploy static site to GitHub Pages
 
 on:
   push:
@@ -10,11 +9,10 @@ permissions:
   contents: read
   pages: write
   id-token: write
-  actions: read     # required by actions/deploy-pages@v4
 
 concurrency:
   group: "pages"
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -22,17 +20,22 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Setup Pages
+
+      # Ensure Jekyll processing is disabled (keeps /fonts, /media, underscores, etc.)
+      - name: Disable Jekyll
+        run: touch .nojekyll
+
+      # (Optional) keep your custom domain if you use one (only if CNAME isn't already in repo)
+      # - name: Set CNAME
+      #   run: echo "uxfest.live" > CNAME
+
+      - name: Configure Pages
         uses: actions/configure-pages@v5
-      - name: Build with Jekyll
-        uses: actions/jekyll-build-pages@v1
-        with:
-          source: ./
-          destination: ./_site
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./_site
+          path: ./
 
   deploy:
     environment:
