@@ -8,12 +8,12 @@
   <link rel="icon" href="../favicon.ico" type="image/x-icon" />
   <link rel="stylesheet" href="./style.css" />
 
-  <!-- Twitch requires each hosting domain listed as a parent -->
+  <!-- HOSTING_DOMAIN -->
   <meta name="twitch-parent" content="uxfest.live" />
   <meta name="twitch-parent" content="whoiseve.github.io" />
 </head>
 <body class="moody">
-  <!-- Background -->
+  <!-- BACKGROUND -->
   <div class="bg-wrap">
     <video class="bg-media" autoplay muted loop playsinline poster="./media/bg_poster.jpg">
       <source src="./media/bg.webm" type="video/webm" />
@@ -22,7 +22,7 @@
     <div class="bg-overlay"></div>
   </div>
 
-  <!-- Top bar -->
+  <!-- TOP -->
   <header class="topbar">
     <div class="topbar__left">
       <span class="badge">USER_AUTHORIZED: LEVEL_2_CLEARANCE</span>
@@ -33,9 +33,9 @@
     </div>
   </header>
 
-  <!-- Main shell -->
+  <!-- SHELL_MAIN -->
   <main class="shell">
-    <!-- Left telemetry rail -->
+    <!-- TELEM_RAIL -->
     <aside class="rail">
       <div class="rail__box">
         <div class="rail__title">TELEMETRY</div>
@@ -65,11 +65,11 @@
       <div class="rail__stripe"></div>
     </aside>
 
-    <!-- Stage: player + chat -->
+    <!-- STAGE_PLAYER+CHAT -->
     <section class="stage">
       <div class="player-wrap">
         <div class="player-box">
-          <!-- Native Twitch player iframe (src set by live.js) -->
+          <!-- IFRAME -->
           <iframe
             id="twitchPlayer"
             class="live-embed"
@@ -79,11 +79,11 @@
             src="">
           </iframe>
 
-          <!-- HUD overlay -->
+          <!-- HUD -->
           <div class="hud">
             <div class="hud__corners"></div>
             <div class="hud__topline">
-              <span class="dot">REC</span>
+              <span class="dot">LIVE</span>
               <span class="chan">CHANNEL: UXFESTIVAL</span>
               <span class="timecode" id="hudClock">--:--:--</span>
             </div>
@@ -104,11 +104,11 @@
       </aside>
     </section>
 
-    <!-- Panels -->
+    <!-- PANELS -->
     <section class="panels">
-      <a class="btn panel" href="https://discord.gg/your-invite" target="_blank" rel="noopener">SUPPORT</a>
-      <a class="btn panel" href="https://twitch.tv/uxfestival" target="_blank" rel="noopener">SHOP</a>
-      <a class="btn panel" href="https://discord.gg/your-invite" target="_blank" rel="noopener">ENTER_VENUE</a>
+      <a class="btn panel" href="https://support.uxfest.live/" target="_blank" rel="noopener">SUPPORT</a>
+      <a class="btn panel" href="https://shop.uxfest.live/" target="_blank" rel="noopener">SHOP</a>
+      <a class="btn panel" href="https://discord.gg/mfmp3Ppn4Z" target="_blank" rel="noopener">ENTER_VENUE</a>
       <a class="btn panel" href="https://twitch.tv/uxfestival" target="_blank" rel="noopener">VIEW_Transmission</a>
     </section>
   </main>

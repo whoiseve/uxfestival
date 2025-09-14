@@ -105,11 +105,44 @@ body{
 .links{list-style:none; padding:0; margin:.25rem 0 0}
 .links li{margin:.35rem 0}
 
-.hud{position:absolute; inset:0; pointer-events:none; color:#e9e5e4; font-family:PPSupplyMono,"Space Mono",ui-monospace,monospace}
-.hud__corners::before,.hud__corners::after{content:""; position:absolute; inset:12px; border:2px solid rgba(233,229,228,.35); clip-path:polygon(0 0,18px 0,18px 2px,2px 2px,2px 18px,0 18px,0 calc(100% - 18px),2px calc(100% - 18px),2px calc(100% - 2px),18px calc(100% - 2px),18px 100%,calc(100% - 18px) 100%,calc(100% - 18px) calc(100% - 2px),calc(100% - 2px) calc(100% - 2px),calc(100% - 2px) calc(100% - 18px),100% calc(100% - 18px),100% 18px,calc(100% - 2px) 18px,calc(100% - 2px) 2px,calc(100% - 18px) 2px,calc(100% - 18px) 0)}
-.hud__topline{position:absolute; top:10px; left:12px; right:12px; display:flex; justify-content:space-between; gap:.5rem; font-size:.85rem; text-shadow:0 1px 0 rgba(0,0,0,.6)}
-.hud .dot::before{content:""; display:inline-block; width:.5rem; height:.5rem; border-radius:50%; background:#d61106; margin-right:.4rem; box-shadow:0 0 8px #d61106}
-.hud__scanlines{position:absolute; inset:0; opacity:.20; background:linear-gradient(0deg, rgba(0,0,0,0) 0, rgba(255,255,255,.06) 1px, rgba(0,0,0,0) 2px); background-size:100% 3px}
+
+.hud__topline {
+  position: absolute;
+  top: 20px;                    /* moved down slightly */
+  left: 25px;                   /* inset from edges */
+  right: 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+
+  font-size: 0.8rem;            /* smaller, CCTV style */
+  font-family: PPSupplyMono, "Space Mono", ui-monospace, monospace;
+  color: #e9e5e4;
+  text-shadow: none;
+}
+
+.hud__topline > div {
+  background: rgba(0, 0, 0, 0.6);   /* translucent black box */
+  padding: 2px 6px;                 /* space inside box */
+  border-radius: 2px;               /* small corner rounding */
+  backdrop-filter: blur(2px);       /* makes text pop */
+  border: 1px solid rgba(255,255,255,0.15); /* faint outline */
+  white-space: nowrap;              /* keeps text inline */
+  font-variant-numeric: tabular-nums;
+}
+
+.hud__topline .dot::before {
+  content: "";
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: #d61106;
+  margin-right: 0.4rem;
+  box-shadow: 0 0 8px #d61106;
+}
+
 
 
 /* tiny luminance pulse when text updates */
