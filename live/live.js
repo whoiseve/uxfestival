@@ -1,5 +1,5 @@
 // Channel to show (set to "uxfestival" on show day)
-const TWITCH_CHANNEL = "uxfestival";
+const TWITCH_CHANNEL = "marczero";
 
 // Parents from <meta name="twitch-parent">
 const parentMeta = Array.from(document.querySelectorAll('meta[name="twitch-parent"]'));
