@@ -6,7 +6,7 @@
   // --- CONFIG ---
   // Treat target as midnight local time on Nov 21, 2025
   // (For strict America/Vancouver regardless of viewer locale, see note below.)
-  const targetLocal = new Date(2025, 10, 21, 12, 0, 0, 0); // month is zero-based (10 = November)
+  const targetLocal = new Date(2025, 10, 21, 14, 0, 0, 0); // month is zero-based (10 = November)
   const el = {
     dd: document.getElementById('dd'),
     hh: document.getElementById('hh'),
