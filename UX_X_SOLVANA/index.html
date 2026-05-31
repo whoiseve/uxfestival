@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- ═══════════════════════════════════════════════════
+     EDIT: Update title for each event
+═══════════════════════════════════════════════════ -->
+<title>UX × SOLVANA // LIVE TRANSMISSION // USER EXPERIENCE MEDIA GROUP</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=Bebas+Neue&family=IBM+Plex+Sans+Condensed:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --orange: #FF5500;
+    --black: #080808;
+    --surface: #0e0e0e;
+    --surface-2: #161616;
+    --surface-3: #1e1e1e;
+    --border: rgba(255,255,255,0.07);
+    --border-bright: rgba(255,255,255,0.15);
+    --text: #e8e8e0;
+    --text-dim: rgba(232,232,224,0.45);
+    --text-mid: rgba(232,232,224,0.7);
+    --mono: 'IBM Plex Mono', monospace;
+    --display: 'Bebas Neue', sans-serif;
+    --condensed: 'IBM Plex Sans Condensed', sans-serif;
+    --live-green: #00e87a;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.6;
+    cursor: crosshair;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  /* Scanlines */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.12) 2px, rgba(0,0,0,0.12) 4px);
+    pointer-events: none; z-index: 9000;
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  /* ─── STATUS BAR ─── */
+  .status-bar {
+    position: fixed; top: 0; left: 0; right: 0; height: 28px;
+    background: var(--black); border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 20px; z-index: 8000;
+    font-size: 9px; letter-spacing: 0.12em; color: var(--text-dim);
+  }
+  .status-bar .left { display: flex; gap: 20px; align-items: center; }
+  .status-bar .right { display: flex; gap: 20px; align-items: center; }
+
+  /* Live dot — pulses green when live, dim when pre/post show */
+  .live-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--text-dim);
+    display: inline-block; margin-right: 5px;
+    transition: background 0.5s;
+  }
+  .live-dot.is-live {
+    background: var(--live-green);
+    box-shadow: 0 0 6px var(--live-green);
+    animation: livePulse 1.5s infinite;
+  }
+  @keyframes livePulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  .status-indicator { letter-spacing: 0.15em; color: var(--text-dim); transition: color 0.5s; }
+  .status-indicator.is-live { color: var(--live-green); }
+  .status-indicator.is-orange { color: var(--orange); }
+
+  .clock { font-variant-numeric: tabular-nums; }
+
+  /* ─── NAV ─── */
+  nav {
+    position: fixed; top: 28px; left: 0; right: 0; height: 48px;
+    background: rgba(8,8,8,0.96); border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 20px; z-index: 7999; backdrop-filter: blur(10px);
+  }
+  .nav-logo { font-family: var(--display); font-size: 22px; letter-spacing: 0.08em; }
+  .nav-logo span { color: var(--orange); }
+
+  .nav-links { display: flex; gap: 24px; list-style: none; font-size: 9px; letter-spacing: 0.14em; color: var(--text-dim); }
+  .nav-links a { transition: color 0.2s; }
+  .nav-links a:hover { color: var(--orange); }
+
+  .nav-back {
+    font-size: 9px; letter-spacing: 0.12em; padding: 6px 14px;
+    border: 1px solid var(--border); color: var(--text-dim); transition: all 0.2s;
+  }
+  .nav-back:hover { border-color: var(--orange); color: var(--orange); }
+
+  /* ─── PAGE WRAPPER ─── */
+  .page { padding-top: 76px; }
+
+  /* ─── EVENT HEADER ─── */
+  .event-header {
+    padding: 48px 20px 36px;
+    border-bottom: 1px solid var(--border);
+    position: relative; overflow: hidden;
+  }
+  .event-header-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,85,0,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,85,0,0.025) 1px, transparent 1px);
+    background-size: 50px 50px;
+    animation: gridShift 20s linear infinite;
+    pointer-events: none;
+  }
+  @keyframes gridShift { 0%{background-position:0 0} 100%{background-position:50px 50px} }
+
+  .header-inner {
+    max-width: 1600px; margin: 0 auto;
+    display: grid; grid-template-columns: 1fr auto;
+    align-items: end; gap: 40px; position: relative;
+  }
+
+  .event-breadcrumb {
+    font-size: 9px; letter-spacing: 0.2em; color: var(--text-dim);
+    margin-bottom: 12px;
+  }
+  .event-breadcrumb span { color: var(--orange); }
+
+  /* ─── EDIT: Event title and subtitle ─── */
+  .event-title {
+    font-family: var(--display);
+    font-size: clamp(48px, 8vw, 100px);
+    line-height: 0.88; letter-spacing: 0.02em;
+    margin-bottom: 10px;
+  }
+  .event-title .x-mark { color: var(--orange); margin: 0 8px; }
+
+  .event-collab {
+    font-size: 9px; letter-spacing: 0.2em; color: var(--text-dim);
+    margin-bottom: 0;
+  }
+
+  /* Quick meta pills */
+  .event-pills {
+    display: flex; gap: 0; margin-top: 20px;
+    border: 1px solid var(--border);
+    width: fit-content;
+  }
+  .pill {
+    padding: 8px 16px; border-right: 1px solid var(--border);
+    font-size: 8px; letter-spacing: 0.18em;
+  }
+  .pill:last-child { border-right: none; }
+  .pill .pill-val { color: var(--text-mid); margin-top: 2px; font-size: 9px; letter-spacing: 0.08em; }
+  .pill .pill-label { color: var(--text-dim); }
+  .pill .orange { color: var(--orange); }
+
+  /* Countdown header block */
+  .header-countdown {
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .hc-label {
+    font-size: 8px; letter-spacing: 0.22em; color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+  .hc-units {
+    display: flex; gap: 0;
+    border: 1px solid var(--border);
+  }
+  .hc-unit {
+    padding: 10px 16px; border-right: 1px solid var(--border);
+    text-align: center; min-width: 64px;
+  }
+  .hc-unit:last-child { border-right: none; }
+  .hc-num {
+    font-family: var(--display);
+    font-size: 36px; line-height: 1;
+    color: var(--orange); display: block;
+    font-variant-numeric: tabular-nums;
+  }
+  .hc-unit-label {
+    font-size: 7px; letter-spacing: 0.2em; color: var(--text-dim);
+    display: block; margin-top: 2px;
+  }
+  /* When live, show GO LIVE instead of countdown */
+  .hc-live-msg {
+    display: none;
+    font-family: var(--display);
+    font-size: 28px; letter-spacing: 0.1em;
+    color: var(--live-green);
+    border: 1px solid rgba(0,232,122,0.3);
+    padding: 14px 28px;
+  }
+
+  /* ─── SIGNAL DIVIDER ─── */
+  .signal-line {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--orange), transparent);
+    opacity: 0.3;
+  }
+
+  /* ─── TELEMETRY TICKER ─── */
+  .telemetry-bar {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 9px 0; overflow: hidden;
+  }
+  .telemetry-track {
+    display: flex; gap: 56px;
+    animation: ticker 35s linear infinite; white-space: nowrap; width: max-content;
+  }
+  .telemetry-item { font-size: 9px; letter-spacing: 0.14em; color: var(--text-dim); }
+  .telemetry-item .key { color: var(--orange); }
+  @keyframes ticker { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+
+  /* ─── MAIN CONTENT GRID ─── */
+  .main-grid {
+    max-width: 1600px; margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ─── STREAM COLUMN ─── */
+  .stream-column {
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+  }
+
+  .stream-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .stream-title {
+    font-size: 9px; letter-spacing: 0.2em; color: var(--text-dim);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .stream-title .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--text-dim);
+    transition: all 0.5s;
+  }
+  .stream-title .dot.is-live {
+    background: var(--live-green);
+    box-shadow: 0 0 5px var(--live-green);
+    animation: livePulse 1.5s infinite;
+  }
+  .stream-controls { display: flex; gap: 8px; }
+  .stream-control-btn {
+    font-size: 8px; letter-spacing: 0.15em; padding: 4px 10px;
+    border: 1px solid var(--border); color: var(--text-dim);
+    background: transparent; cursor: crosshair; transition: all 0.2s; font-family: var(--mono);
+  }
+  .stream-control-btn:hover { border-color: var(--orange); color: var(--orange); }
+  .stream-control-btn.active { border-color: var(--orange); color: var(--orange); background: rgba(255,85,0,0.06); }
+
+  /* The actual Twitch embed container */
+  .stream-embed-wrap {
+    position: relative;
+    background: var(--surface-2);
+    flex: 1;
+  }
+  .stream-embed-wrap::before {
+    content: '';
+    display: block;
+    padding-top: 56.25%; /* 16:9 */
+  }
+  .stream-embed-wrap iframe,
+  .stream-embed-wrap #twitch-embed {
+    position: absolute;
+    inset: 0; width: 100%; height: 100%;
+    border: none;
+  }
+
+  /* Pre-show placeholder (hidden when stream is embedded) */
+  .stream-placeholder {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 16px; background: var(--surface-2);
+  }
+  .stream-placeholder .ph-icon {
+    font-family: var(--display); font-size: 64px;
+    letter-spacing: 0.04em; color: var(--text-dim);
+    opacity: 0.3;
+  }
+  .stream-placeholder .ph-text {
+    font-size: 9px; letter-spacing: 0.22em; color: var(--text-dim);
+    text-align: center; line-height: 2;
+  }
+  .stream-placeholder .ph-date {
+    font-family: var(--display); font-size: 20px; letter-spacing: 0.1em;
+    color: var(--orange);
+  }
+
+  /* Stream footer bar */
+  .stream-footer {
+    padding: 12px 20px;
+    border-top: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .stream-footer-left { font-size: 8px; letter-spacing: 0.15em; color: var(--text-dim); }
+  .stream-footer-right { display: flex; gap: 12px; align-items: center; }
+
+  .twitch-link {
+    font-size: 8px; letter-spacing: 0.12em; color: #9147ff;
+    display: flex; align-items: center; gap: 5px;
+    border: 1px solid rgba(145,71,255,0.3); padding: 4px 10px;
+    transition: all 0.2s;
+  }
+  .twitch-link:hover { background: rgba(145,71,255,0.08); border-color: #9147ff; }
+  .twitch-link::before {
+    content: '';
+    width: 8px; height: 8px; border-radius: 1px;
+    background: #9147ff; display: inline-block;
+  }
+
+  /* ─── SIDEBAR ─── */
+  .sidebar {
+    display: flex; flex-direction: column;
+  }
+
+  /* Sidebar sections */
+  .sidebar-block {
+    padding: 20px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .sidebar-block:last-child { border-bottom: none; }
+
+  .sb-label {
+    font-size: 8px; letter-spacing: 0.22em; color: var(--orange);
+    margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+  }
+  .sb-label::before { content: '//'; color: var(--text-dim); }
+
+  /* ── LINEUP in sidebar ── */
+  .sb-lineup { list-style: none; }
+  .sb-lineup li {
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .sb-lineup li:last-child { border-bottom: none; }
+  .sb-artist-name { font-size: 12px; letter-spacing: 0.06em; }
+  .sb-artist-meta { font-size: 8px; letter-spacing: 0.1em; color: var(--text-dim); margin-top: 2px; }
+  .sb-tag {
+    font-size: 7px; letter-spacing: 0.15em; padding: 2px 7px;
+    border: 1px solid var(--orange); color: var(--orange);
+  }
+  .sb-tag.dim { border-color: var(--border-bright); color: var(--text-dim); }
+
+  /* ── SUPPORT block ── */
+  .support-actions { display: flex; flex-direction: column; gap: 10px; }
+
+  .btn-merch {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 16px;
+    background: var(--orange); color: var(--black);
+    font-family: var(--mono); font-size: 10px; font-weight: 600;
+    letter-spacing: 0.18em; transition: opacity 0.2s;
+    cursor: crosshair;
+  }
+  .btn-merch:hover { opacity: 0.85; }
+  .btn-merch .btn-arrow { font-size: 14px; font-weight: 300; }
+
+  .btn-patreon {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 16px;
+    background: transparent; color: var(--text-mid);
+    font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.18em;
+    border: 1px solid var(--border); transition: all 0.2s;
+    cursor: crosshair;
+  }
+  .btn-patreon:hover { border-color: #FF424D; color: #FF424D; }
+  .btn-patreon .patreon-icon { font-size: 11px; }
+
+  .support-note {
+    font-size: 8px; letter-spacing: 0.1em; color: var(--text-dim);
+    line-height: 1.8; margin-top: 6px;
+  }
+
+  /* ── SHARE block ── */
+  .share-buttons { display: flex; flex-direction: column; gap: 8px; }
+  .share-btn {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px; border: 1px solid var(--border);
+    font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em;
+    color: var(--text-dim); background: transparent;
+    cursor: crosshair; transition: all 0.2s; width: 100%; text-align: left;
+  }
+  .share-btn:hover { border-color: var(--border-bright); color: var(--text); }
+  .share-btn .share-platform { font-size: 8px; letter-spacing: 0.18em; color: var(--orange); min-width: 60px; }
+
+  /* ── EVENT INFO block ── */
+  .event-info-list { list-style: none; }
+  .event-info-list li {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 8px 0; border-bottom: 1px solid var(--border);
+    font-size: 9px;
+  }
+  .event-info-list li:last-child { border-bottom: none; }
+  .info-key { letter-spacing: 0.14em; color: var(--text-dim); }
+  .info-val { letter-spacing: 0.08em; color: var(--text-mid); text-align: right; }
+  .info-val.orange { color: var(--orange); }
+
+  /* ─── FULL COUNTDOWN SECTION ─── */
+  .countdown-section {
+    max-width: 1600px; margin: 0 auto;
+    padding: 48px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-header {
+    display: flex; align-items: baseline; gap: 16px; margin-bottom: 36px;
+  }
+  .section-index { font-size: 9px; letter-spacing: 0.2em; color: var(--orange); }
+  .section-title { font-family: var(--display); font-size: 30px; letter-spacing: 0.06em; }
+  .section-rule { flex: 1; height: 1px; background: var(--border); margin-left: 16px; }
+  .section-meta { font-size: 9px; letter-spacing: 0.15em; color: var(--text-dim); white-space: nowrap; }
+
+  .countdown-full {
+    display: flex; gap: 0;
+    border: 1px solid var(--border);
+    max-width: 700px;
+  }
+  .cf-unit {
+    flex: 1; text-align: center; padding: 28px 16px;
+    border-right: 1px solid var(--border); position: relative;
+  }
+  .cf-unit:last-child { border-right: none; }
+  .cf-num {
+    font-family: var(--display); font-size: 72px; line-height: 1;
+    color: var(--orange); display: block; font-variant-numeric: tabular-nums;
+  }
+  .cf-label {
+    font-size: 8px; letter-spacing: 0.22em; color: var(--text-dim);
+    display: block; margin-top: 8px;
+  }
+  .cf-unit::before {
+    content: '';
+    position: absolute; top: 0; left: 0;
+    width: 0; height: 2px;
+    background: var(--orange);
+    transition: width 1s;
+  }
+
+  /* Live state countdown replacement */
+  .live-announcement {
+    display: none;
+    border: 1px solid rgba(0,232,122,0.25);
+    padding: 32px 40px;
+    background: rgba(0,232,122,0.03);
+    max-width: 700px;
+  }
+  .la-label { font-size: 9px; letter-spacing: 0.25em; color: var(--live-green); margin-bottom: 10px; }
+  .la-title { font-family: var(--display); font-size: 48px; letter-spacing: 0.04em; color: var(--live-green); }
+  .la-sub { font-size: 9px; letter-spacing: 0.15em; color: var(--text-dim); margin-top: 8px; }
+
+  /* ─── ABOUT SECTION ─── */
+  .about-section {
+    max-width: 1600px; margin: 0 auto;
+    padding: 48px 20px;
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 0; border-bottom: 1px solid var(--border);
+  }
+  .about-left { border-right: 1px solid var(--border); padding-right: 48px; }
+  .about-right { padding-left: 48px; }
+
+  .about-tag { font-size: 9px; letter-spacing: 0.2em; color: var(--orange); margin-bottom: 16px; }
+  .about-heading { font-family: var(--display); font-size: 32px; letter-spacing: 0.04em; margin-bottom: 16px; line-height: 1; }
+  .about-body {
+    font-size: 11px; line-height: 2; color: var(--text-mid); margin-bottom: 20px;
+  }
+
+  .data-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+    font-size: 9px;
+  }
+  .data-row:last-child { border-bottom: none; }
+  .dr-key { letter-spacing: 0.15em; color: var(--text-dim); }
+  .dr-val { letter-spacing: 0.08em; color: var(--text-mid); }
+  .dr-val.orange { color: var(--orange); }
+
+  /* ─── MOBILE SUPPORT STRIP ─── */
+  .mobile-support { display: none; }
+
+  /* ─── FOOTER ─── */
+  footer {
+    border-top: 1px solid var(--border); padding: 28px 20px;
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 24px; align-items: center;
+    max-width: 1600px; margin: 0 auto;
+  }
+  .footer-logo { font-family: var(--display); font-size: 20px; letter-spacing: 0.08em; }
+  .footer-logo span { color: var(--orange); }
+  .footer-copy { font-size: 8px; letter-spacing: 0.1em; color: var(--text-dim); line-height: 2; }
+  .footer-right { text-align: right; font-size: 8px; letter-spacing: 0.1em; color: var(--text-dim); }
+  .footer-right a { color: var(--orange); }
+  .footer-right a:hover { text-decoration: underline; }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 1100px) {
+    .main-grid { grid-template-columns: 1fr; }
+    .stream-column { border-right: none; border-bottom: 1px solid var(--border); }
+    .sidebar { flex-direction: row; flex-wrap: wrap; }
+    .sidebar-block { flex: 1; min-width: 240px; border-right: 1px solid var(--border); }
+    .sidebar-block:last-child { border-right: none; }
+  }
+
+  @media (max-width: 800px) {
+    .header-inner { grid-template-columns: 1fr; gap: 24px; }
+    .header-countdown { text-align: left; }
+    .about-section { grid-template-columns: 1fr; }
+    .about-left { border-right: none; padding-right: 0; border-bottom: 1px solid var(--border); padding-bottom: 40px; margin-bottom: 40px; }
+    .about-right { padding-left: 0; }
+    footer { grid-template-columns: 1fr; gap: 16px; }
+    .footer-right { text-align: left; }
+    .nav-links { display: none; }
+    .event-title { font-size: 48px; }
+    .cf-num { font-size: 48px; }
+    .mobile-support {
+      display: flex; flex-direction: column; gap: 10px;
+      padding: 20px; border-bottom: 1px solid var(--border);
+    }
+    .sidebar-block.support-block { display: none; }
+  }
+
+  @media (max-width: 500px) {
+    .event-pills { flex-wrap: wrap; }
+    .hc-units { gap: 0; }
+    .hc-unit { min-width: 54px; padding: 8px 10px; }
+    .hc-num { font-size: 28px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ─── STATUS BAR ─── -->
+<div class="status-bar">
+  <div class="left">
+    <span>UX // USER EXPERIENCE MEDIA GROUP</span>
+    <!-- EDIT: Node name for this event -->
+    <span><span class="live-dot" id="statusDot"></span><span class="status-indicator" id="statusText">INITIALISING</span></span>
+    <!-- EDIT: Event node ID -->
+    <span>NODE: UX_SOLVANA</span>
+  </div>
+  <div class="right">
+    <span class="clock" id="clock">--:--:-- UTC</span>
+  </div>
+</div>
+
+<!-- ─── NAV ─── -->
+<nav>
+  <a href="https://uxfest.live/" class="nav-logo">UX<span>//</span></a>
+  <ul class="nav-links">
+    <li><a href="#stream">LIVE STREAM</a></li>
+    <li><a href="#countdown">COUNTDOWN</a></li>
+    <li><a href="#about">ABOUT</a></li>
+    <li><a href="https://shop.uxfest.live/" target="_blank" rel="noopener">MERCH</a></li>
+    <li><a href="https://pally.gg/p/uxfestival" target="_blank" rel="noopener">SUPPORT</a></li>
+  </ul>
+  <a href="https://uxfest.live/" class="nav-back">← MAIN TERMINAL</a>
+</nav>
+
+<!-- ─── PAGE ─── -->
+<div class="page">
+
+  <!-- ─── TELEMETRY TICKER ─── -->
+  <div class="telemetry-bar">
+    <div class="telemetry-track">
+      <!-- EDIT: update ticker items for each event -->
+      <span class="telemetry-item"><span class="key">OPERATION:</span> UX × SOLVANA</span>
+      <span class="telemetry-item"><span class="key">DATE:</span> 01.08.2026</span>
+      <span class="telemetry-item"><span class="key">TYPE:</span> COLLABORATIVE BROADCAST</span>
+      <span class="telemetry-item"><span class="key">NETWORK:</span> USER EXPERIENCE MEDIA GROUP × SOLVANA</span>
+      <span class="telemetry-item"><span class="key">STREAM:</span> TWITCH.TV/USEREXPERIENCEMEDIA</span>
+      <span class="telemetry-item"><span class="key">MERCH:</span> SHOP.UXFEST.LIVE</span>
+      <span class="telemetry-item"><span class="key">SUPPORT:</span> PATREON.COM/USEREXPERIENCEMEDIA</span>
+      <!-- Duplicate for seamless scroll -->
+      <span class="telemetry-item"><span class="key">OPERATION:</span> UX × SOLVANA</span>
+      <span class="telemetry-item"><span class="key">DATE:</span> 01.08.2026</span>
+      <span class="telemetry-item"><span class="key">TYPE:</span> COLLABORATIVE BROADCAST</span>
+      <span class="telemetry-item"><span class="key">NETWORK:</span> USER EXPERIENCE MEDIA GROUP × SOLVANA</span>
+      <span class="telemetry-item"><span class="key">STREAM:</span> TWITCH.TV/USEREXPERIENCEMEDIA</span>
+      <span class="telemetry-item"><span class="key">MERCH:</span> SHOP.UXFEST.LIVE</span>
+      <span class="telemetry-item"><span class="key">SUPPORT:</span> https://pally.gg/p/uxfestival</span>
+    </div>
+  </div>
+
+  <!-- ─── EVENT HEADER ─── -->
+  <div class="event-header" id="top">
+    <div class="event-header-grid"></div>
+    <div class="header-inner">
+      <div>
+        <div class="event-breadcrumb">OPERATIONS / <span>ACTIVE TRANSMISSION</span></div>
+
+        <!-- EDIT: Event title -->
+        <h1 class="event-title">UX<span class="x-mark">×</span>SOLVANA</h1>
+
+        <!-- EDIT: Collaborators line -->
+        <div class="event-collab">USER EXPERIENCE MEDIA GROUP × SOLVANA // COLLABORATIVE BROADCAST</div>
+
+        <div class="event-pills">
+          <div class="pill">
+            <div class="pill-label">DATE</div>
+            <!-- EDIT -->
+            <div class="pill-val">01 AUGUST 2026</div>
+          </div>
+          <div class="pill">
+            <div class="pill-label">TYPE</div>
+            <!-- EDIT -->
+            <div class="pill-val">COLLABORATIVE</div>
+          </div>
+          <div class="pill">
+            <div class="pill-label">FORMAT</div>
+            <!-- EDIT -->
+            <div class="pill-val">LIVE BROADCAST</div>
+          </div>
+          <div class="pill">
+            <div class="pill-label">STATUS</div>
+            <div class="pill-val orange" id="headerStatus">LOADING...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Compact countdown (header) -->
+      <div class="header-countdown">
+        <div class="hc-label">TRANSMISSION BEGINS IN</div>
+        <div class="hc-units" id="headerCountdown">
+          <div class="hc-unit">
+            <span class="hc-num" id="h-days">--</span>
+            <span class="hc-unit-label">DAYS</span>
+          </div>
+          <div class="hc-unit">
+            <span class="hc-num" id="h-hours">--</span>
+            <span class="hc-unit-label">HOURS</span>
+          </div>
+          <div class="hc-unit">
+            <span class="hc-num" id="h-mins">--</span>
+            <span class="hc-unit-label">MINS</span>
+          </div>
+          <div class="hc-unit">
+            <span class="hc-num" id="h-secs">--</span>
+            <span class="hc-unit-label">SECS</span>
+          </div>
+        </div>
+        <div class="hc-live-msg" id="headerLiveMsg">
+          ● TRANSMISSION LIVE
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="signal-line"></div>
+
+  <!-- ─── MAIN CONTENT: STREAM + SIDEBAR ─── -->
+  <div class="main-grid" id="stream">
+
+    <!-- ── STREAM COLUMN ── -->
+    <div class="stream-column">
+      <div class="stream-header">
+        <div class="stream-title">
+          <span class="dot" id="streamDot"></span>
+          <!-- EDIT: Stream label -->
+          <span>LIVE BROADCAST // UX × SOLVANA</span>
+        </div>
+        <div class="stream-controls">
+          <button class="stream-control-btn active" onclick="showStream()" id="btnStream">STREAM</button>
+          <button class="stream-control-btn" onclick="showChat()" id="btnChat">+ CHAT</button>
+        </div>
+      </div>
+
+      <!-- TWITCH EMBED -->
+      <div class="stream-embed-wrap" id="streamWrap">
+        <!--
+          ╔══════════════════════════════════════════════════════════╗
+          ║  TWITCH EMBED — IMPORTANT SETUP NOTE                    ║
+          ║                                                          ║
+          ║  Twitch requires your domain to be on the allowlist.    ║
+          ║  Before going live:                                      ║
+          ║  1. Go to dev.twitch.tv → your application settings     ║
+          ║  2. Add your domain (e.g. uxfest.live) to               ║
+          ║     "OAuth Redirect URLs" / allowed embedding domains    ║
+          ║  3. Replace YOURCHANNEL below with your Twitch username  ║
+          ║                                                          ║
+          ║  The embed loads via the Twitch Embed JS API.           ║
+          ║  Viewers watching here COUNT as Twitch views.           ║
+          ╚══════════════════════════════════════════════════════════╝
+        -->
+        <div id="twitch-embed"></div>
+
+        <!-- Pre-show placeholder — hidden when Twitch embed initialises -->
+        <div class="stream-placeholder" id="streamPlaceholder">
+          <div class="ph-icon">UX×</div>
+          <div class="ph-text">
+            TRANSMISSION BEGINS<br>
+            <!-- EDIT -->
+            <span class="ph-date">01 AUGUST 2026</span><br>
+            STREAM WILL APPEAR HERE AUTOMATICALLY
+          </div>
+        </div>
+      </div>
+
+      <div class="stream-footer">
+        <div class="stream-footer-left">
+          <!-- EDIT: Channel info line -->
+          WATCHING ON UXFEST.LIVE // POWERED BY TWITCH
+        </div>
+        <div class="stream-footer-right">
+          <!-- EDIT: Replace with your actual Twitch channel URL -->
+          <a href="https://twitch.tv/uxfestival" target="_blank" rel="noopener" class="twitch-link">
+            OPEN ON TWITCH
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SIDEBAR ── -->
+    <div class="sidebar">
+
+      <!-- NOTE 002:ANIMATE AND SWITCH BASED ON CURRENT "LIVE" TIMIING AND NOW PLAYING ARTIST-->
+       <!-- ADD LINK AND HIGHLIGHT TO ARTIST LINKTREE / WHATEVER THE FUCK AND HIGHLIGHT WHEN LIVE (run )-->
+      <!-- EVENT INFO -->
+      <div class="sidebar-block">
+        <div class="sb-label">EVENT INFO</div>
+        <ul class="event-info-list">
+          <!-- EDIT: Fill in event details -->
+          <li><span class="info-key">OPERATION</span><span class="info-val">UX × SOLVANA</span></li>
+          <li><span class="info-key">DATE</span><span class="info-val">01.08.2026</span></li>
+          <li><span class="info-key">TIME</span>
+            <!-- EDIT: Start time in UTC and local -->
+            <span class="info-val">[ 06:30 ] UTC</span>
+          </li>
+          <li><span class="info-key">FORMAT</span><span class="info-val">LIVE BROADCAST</span></li>
+          <li><span class="info-key">NETWORK</span><span class="info-val">UXMG × SOLVANA</span></li>
+          <li><span class="info-key">STATUS</span><span class="info-val orange" id="sidebarStatus">LOADING...</span></li>
+        </ul>
+      </div>
+
+      <!-- LINEUP -->
+      <div class="sidebar-block">
+        <div class="sb-label">ARTIST MANIFEST</div>
+        <ul class="sb-lineup">
+
+          <!-- ── EDIT: Add/remove artist rows. Duplicate li block for each act ── -->
+          <li>
+            <div>
+              <div class="sb-artist-name">[ AVIS ]</div>
+              <!-- EDIT: Genre // time slot -->
+              <div class="sb-artist-meta">[ TRANCE // MELODIC HOUSE ] // [ TBA ]</div>
+            </div>
+            <span class="sb-tag dim">ACT ONE</span>
+          </li>
+
+          <li>
+            <div>
+              <div class="sb-artist-name">[ PAULØ ]</div>
+              <div class="sb-artist-meta">[ ELECTRO HOUSE ] // [ TBA ]</div>
+            </div>
+            <span class="sb-tag dim">ACT TWO</span>
+          </li>
+
+          <li>
+            <div>
+              <div class="sb-artist-name">[ KAMIX ]</div>
+              <div class="sb-artist-meta">[ BASS HOUSE // TRAP ] // [ TBA ]</div>
+            </div>
+            <span class="sb-tag dim">ACT THREE</span>
+          </li>
+          <li>
+            <div>
+              <div class="sb-artist-name">[ IRXN ]</div>
+              <div class="sb-artist-meta">[ BASS ] // [ TBA ]</div>
+            </div>
+            <span class="sb-tag dim">ACT FOUR</span>
+          </li>
+          <li>
+            <div>
+              <div class="sb-artist-name">[ TOXIC WRAITH ]</div>
+              <div class="sb-artist-meta">[ BASS ] // [ TBA ]</div>
+            </div>
+            <span class="sb-tag dim">ACT FIVE</span>
+          </li>
+          <li>
+            <div>
+              <div class="sb-artist-name">[ CL04K ]</div>
+              <div class="sb-artist-meta">[ BASS ] [ TBA ]</div>
+            </div>
+            <span class="sb-tag">HEADLINER</span>
+          </li>
+          <li>
+            <div>
+              <div class="sb-artist-name">[ TOKYO MACHINE ]</div>
+              <div class="sb-artist-meta">[ BASS ] // [ TBA ]</div>
+            </div>
+            <span class="sb-tag">HEADLINER</span>
+          </li>
+
+          <!-- Add more li items here -->
+
+        </ul>
+      </div>
+
+      <!-- SUPPORT (desktop) -->
+      <div class="sidebar-block support-block">
+        <div class="sb-label">SUPPORT THE NETWORK</div>
+        <div class="support-actions">
+          <a href="https://shop.uxfest.live/" target="_blank" rel="noopener" class="btn-merch">
+            <span>MERCH // SHOP</span>
+            <span class="btn-arrow">→</span>
+          </a>
+          <a href="https://pally.gg/p/uxfestival" target="_blank" rel="noopener" class="btn-patreon">
+            <span>SUPPORT THE EVENT</span>
+            <span class="patreon-icon">♥</span>
+          </a>
+        </div>
+        <div class="support-note">
+          Merch, membership, and support keep the network running.<br>
+          Every contribution goes directly into production.
+        </div>
+      </div>
+
+      <!-- SHARE -->
+      <div class="sidebar-block">
+        <div class="sb-label">SHARE THE BROADCAST</div>
+        <div class="share-buttons">
+          <button class="share-btn" onclick="copyLink()">
+            <span class="share-platform">LINK</span>
+            <span id="copyLinkText">COPY PAGE LINK</span>
+          </button>
+          <a class="share-btn"
+            href="https://twitter.com/intent/tweet?text=Watching+UX+%C3%97+SOLVANA+live+now%21&url=https%3A%2F%2Fuxfest.live"
+            target="_blank" rel="noopener">
+            <!-- EDIT: Update tweet text and URL -->
+            <span class="share-platform">TWITTER/X</span>
+            <span>SHARE ON TWITTER</span>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Mobile support strip (shows below stream on small screens) -->
+  <div class="mobile-support">
+    <a href="https://shop.uxfest.live/" target="_blank" rel="noopener" class="btn-merch">
+      MERCH // SHOP <span class="btn-arrow">→</span>
+    </a>
+    <a href="https://pally.gg/p/uxfestival" target="_blank" rel="noopener" class="btn-patreon">
+      SUPPORT THE EVENT <span class="patreon-icon">♥</span>
+    </a>
+  </div>
+
+  <div class="signal-line"></div>
+
+  <!-- ─── FULL COUNTDOWN ─── -->
+  <div class="countdown-section" id="countdown">
+    <div class="section-header">
+      <span class="section-index">// CD</span>
+      <h2 class="section-title">TRANSMISSION COUNTDOWN</h2>
+      <div class="section-rule"></div>
+      <!-- EDIT: Event date label -->
+      <span class="section-meta">01 AUGUST 2026</span>
+    </div>
+
+    <!-- Pre-show countdown -->
+    <div class="countdown-full" id="countdownFull">
+      <div class="cf-unit">
+        <span class="cf-num" id="f-days">--</span>
+        <span class="cf-label">DAYS</span>
+      </div>
+      <div class="cf-unit">
+        <span class="cf-num" id="f-hours">--</span>
+        <span class="cf-label">HOURS</span>
+      </div>
+      <div class="cf-unit">
+        <span class="cf-num" id="f-mins">--</span>
+        <span class="cf-label">MINUTES</span>
+      </div>
+      <div class="cf-unit">
+        <span class="cf-num" id="f-secs">--</span>
+        <span class="cf-label">SECONDS</span>
+      </div>
+    </div>
+
+    <!-- Live replacement -->
+    <div class="live-announcement" id="liveAnnouncement">
+      <div class="la-label">SYSTEM STATUS</div>
+      <div class="la-title">● WE ARE LIVE</div>
+      <div class="la-sub">TRANSMISSION ACTIVE — TUNE IN ABOVE</div>
+    </div>
+  </div>
+
+  <div class="signal-line"></div>
+
+  <!-- ─── ABOUT / EVENT INFO ─── -->
+  <div class="about-section" id="about">
+    <div class="about-left">
+      <div class="about-tag">// OPERATION OVERVIEW</div>
+      <!-- EDIT: About title -->
+      <h2 class="about-heading">UX × SOLVANA</h2>
+      <!-- EDIT: 2-3 sentence description of the event -->
+      <div class="about-body">
+        [ Write 2–3 sentences describing this event. What is it? What makes it special? What's the collaboration between UX and Solvana about? Who's playing? What should people expect? ]
+      </div>
+      <!-- EDIT: Add more <p> tags to about-body if needed -->
+
+      <div class="data-row">
+        <span class="dr-key">PRESENTED BY</span>
+        <!-- EDIT -->
+        <span class="dr-val">USER EXPERIENCE MEDIA GROUP × SOLVANA</span>
+      </div>
+      <div class="data-row">
+        <span class="dr-key">FORMAT</span>
+        <span class="dr-val">LIVE BROADCAST</span>
+      </div>
+      <div class="data-row">
+        <span class="dr-key">DATE</span>
+        <span class="dr-val">01 AUGUST 2026</span>
+      </div>
+      <div class="data-row">
+        <span class="dr-key">TIME</span>
+        <!-- EDIT: Start time -->
+        <span class="dr-val">[ 06:30 ] UTC</span>
+      </div>
+      <div class="data-row">
+        <span class="dr-key">STREAM PLATFORM</span>
+        <!-- EDIT: Channel URL -->
+        <span class="dr-val orange"><a href="https://twitch.tv/uxfestival" target="_blank">TWITCH.TV/uxfestival</a></span>
+      </div>
+    </div>
+
+    <div class="about-right">
+      <div class="about-tag">// SUPPORT THE NETWORK</div>
+      <h2 class="about-heading">KEEP IT<br>RUNNING</h2>
+      <div class="about-body">
+        Every event is built from scratch by a dedicated crew. Merch purchases and Patreon memberships go directly into the production — better gear, better streams, more events.
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:12px; margin-top:8px;">
+        <a href="https://shop.uxfest.live/" target="_blank" rel="noopener" class="btn-merch" style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div style="font-size:8px; letter-spacing:0.15em; opacity:0.7; margin-bottom:2px;">OFFICIAL MERCHANDISE</div>
+            SHOP.UXFEST.LIVE
+          </div>
+          <span class="btn-arrow">→</span>
+        </a>
+        <a href="https://pally.gg/p/uxfestival" target="_blank" rel="noopener" class="btn-patreon" style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div style="font-size:8px; letter-spacing:0.15em; opacity:0.7; margin-bottom:2px;">SUPPORT THE EVENT</div>
+            PALLY.GG/P/UXFESTIVAL
+          </div>
+          <span class="patreon-icon">♥</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end .page -->
+
+<!-- ─── FOOTER ─── -->
+<footer>
+  <div>
+    <div class="footer-logo">UX<span>//</span></div>
+    <div class="footer-copy">
+      USER EXPERIENCE MEDIA GROUP<br>
+      GLOBAL EVENT NETWORK<br>
+      © 2026 ALL RIGHTS RESERVED
+    </div>
+  </div>
+  <div style="font-size:8px; letter-spacing:0.1em; color:var(--text-dim); line-height:2.5;">
+    <a href="https://shop.uxfest.live/" target="_blank" rel="noopener" style="color:var(--orange);">SHOP.UXFEST.LIVE</a><br>
+    <a href="https://patreon.com/userexperiencemedia" target="_blank" rel="noopener" style="color:var(--orange);">PATREON.COM/USEREXPERIENCEMEDIA</a><br>
+    <a href="https://pally.gg/p/uxfestival" target="_blank" rel="noopener" style="color:var(--orange);">PALLY.GG/P/UXFESTIVAL</a>
+  </div>
+  <div class="footer-right">
+    <!-- EDIT: Node name -->
+    NODE: UX_SOLVANA<br>
+    STATUS: <span id="footerStatus">LOADING...</span><br>
+    <br>
+    <a href="https://uxfest.live/">← MAIN TERMINAL</a>
+  </div>
+</footer>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     TWITCH EMBED + SITE LOGIC
+══════════════════════════════════════════════════════════ -->
+<script src="https://embed.twitch.tv/embed/v1.js"></script>
+<script>
+// ═══════════════════════════════════════════════════════════
+// CONFIGURATION — EDIT THESE VALUES FOR EACH EVENT
+// ═══════════════════════════════════════════════════════════
+
+const CONFIG = {
+  // EDIT: Your Twitch channel name (no spaces, exact match)
+  twitchChannel: 'uxfestival',
+
+  // EDIT: Event start time in UTC — format: 'YYYY-MM-DDTHH:MM:SSZ'
+  eventStart: '2026-08-01T20:6:30Z',
+
+  // EDIT: Event end time in UTC (approximate — when to flip to "ARCHIVED")
+  eventEnd: '2026-08-02T02:12:00Z',
+
+  // EDIT: Your site domain — required by Twitch embed API (no https://, no trailing slash)
+  // Example: 'uxfest.live'
+  parentDomain: 'uxfest.live',
+};
+
+// ═══════════════════════════════════════════════════════════
+// EVERYTHING BELOW IS AUTOMATIC — NO EDITS NEEDED
+// ═══════════════════════════════════════════════════════════
+
+let twitchEmbed = null;
+let currentMode = 'stream'; // 'stream' or 'chat'
+
+// ── Initialise Twitch Embed ──
+function initTwitch() {
+  try {
+    twitchEmbed = new Twitch.Embed('twitch-embed', {
+      width: '100%',
+      height: '100%',
+      channel: CONFIG.twitchChannel,
+      layout: currentMode === 'chat' ? 'video-with-chat' : 'video',
+      autoplay: false,
+      muted: false,
+      // Twitch requires parent domains listed explicitly
+      parent: [CONFIG.parentDomain, 'uxfest.live' + CONFIG.parentDomain]
+    });
+
+    // Hide placeholder once embed fires
+    twitchEmbed.addEventListener(Twitch.Embed.VIDEO_READY, () => {
+      const ph = document.getElementById('streamPlaceholder');
+      if (ph) ph.style.display = 'none';
+    });
+  } catch (e) {
+    console.warn('Twitch embed initialisation error:', e);
+  }
+}
+
+// Switch between video-only and video+chat layouts
+function showStream() {
+  currentMode = 'stream';
+  document.getElementById('btnStream').classList.add('active');
+  document.getElementById('btnChat').classList.remove('active');
+  rebuildEmbed('video');
+}
+function showChat() {
+  currentMode = 'chat';
+  document.getElementById('btnChat').classList.add('active');
+  document.getElementById('btnStream').classList.remove('active');
+  rebuildEmbed('video-with-chat');
+}
+function rebuildEmbed(layout) {
+  const container = document.getElementById('twitch-embed');
+  container.innerHTML = '';
+  try {
+    twitchEmbed = new Twitch.Embed('twitch-embed', {
+      width: '100%', height: '100%',
+      channel: CONFIG.twitchChannel,
+      layout: layout,
+      autoplay: false,
+      parent: [CONFIG.parentDomain, 'www.' + CONFIG.parentDomain]
+    });
+  } catch (e) { console.warn('Embed rebuild error:', e); }
+}
+
+// ── Clock ──
+function updateClock() {
+  const now = new Date();
+  const h = String(now.getUTCHours()).padStart(2,'0');
+  const m = String(now.getUTCMinutes()).padStart(2,'0');
+  const s = String(now.getUTCSeconds()).padStart(2,'0');
+  document.getElementById('clock').textContent = `${h}:${m}:${s} UTC`;
+}
+
+// ── Countdown + State Machine ──
+function getEventState() {
+  const now = new Date();
+  const start = new Date(CONFIG.eventStart);
+  const end = new Date(CONFIG.eventEnd);
+  if (now < start) return 'pre';
+  if (now >= start && now <= end) return 'live';
+  return 'post';
+}
+
+function pad(n) { return String(Math.max(0, n)).padStart(2,'0'); }
+
+function updateUI() {
+  const state = getEventState();
+  const now = new Date();
+  const start = new Date(CONFIG.eventStart);
+  const diff = start - now;
+
+  // DOM refs
+  const dot = document.getElementById('statusDot');
+  const statusText = document.getElementById('statusText');
+  const headerStatus = document.getElementById('headerStatus');
+  const sidebarStatus = document.getElementById('sidebarStatus');
+  const footerStatus = document.getElementById('footerStatus');
+  const streamDot = document.getElementById('streamDot');
+  const headerCountdown = document.getElementById('headerCountdown');
+  const headerLiveMsg = document.getElementById('headerLiveMsg');
+  const countdownFull = document.getElementById('countdownFull');
+  const liveAnnouncement = document.getElementById('liveAnnouncement');
+
+  if (state === 'pre') {
+    // Countdown mode
+    const days  = Math.floor(diff / (1000*60*60*24));
+    const hours = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
+    const mins  = Math.floor((diff % (1000*60*60)) / (1000*60));
+    const secs  = Math.floor((diff % (1000*60)) / 1000);
+
+    // Header units
+    document.getElementById('h-days').textContent  = pad(days);
+    document.getElementById('h-hours').textContent = pad(hours);
+    document.getElementById('h-mins').textContent  = pad(mins);
+    document.getElementById('h-secs').textContent  = pad(secs);
+    // Full units
+    document.getElementById('f-days').textContent  = pad(days);
+    document.getElementById('f-hours').textContent = pad(hours);
+    document.getElementById('f-mins').textContent  = pad(mins);
+    document.getElementById('f-secs').textContent  = pad(secs);
+
+    // Status indicators
+    dot.classList.remove('is-live');
+    streamDot.classList.remove('is-live');
+    statusText.textContent = 'PREPARING TRANSMISSION';
+    statusText.classList.remove('is-live');
+    statusText.classList.add('is-orange');
+    [headerStatus, sidebarStatus, footerStatus].forEach(el => {
+      if (el) { el.textContent = 'UPCOMING'; el.style.color = 'var(--orange)'; }
+    });
+
+    headerCountdown.style.display = 'flex';
+    headerLiveMsg.style.display = 'none';
+    countdownFull.style.display = 'flex';
+    liveAnnouncement.style.display = 'none';
+
+  } else if (state === 'live') {
+    // Live mode — show elapsed instead of countdown
+    const elapsed = now - start;
+    const eh = Math.floor(elapsed / (1000*60*60));
+    const em = Math.floor((elapsed % (1000*60*60)) / (1000*60));
+    const es = Math.floor((elapsed % (1000*60)) / 1000);
+
+    // Show elapsed in header countdown slots
+    document.getElementById('h-days').textContent  = '00';
+    document.getElementById('h-hours').textContent = pad(eh);
+    document.getElementById('h-mins').textContent  = pad(em);
+    document.getElementById('h-secs').textContent  = pad(es);
+
+    // Status
+    dot.classList.add('is-live');
+    streamDot.classList.add('is-live');
+    statusText.textContent = 'LIVE';
+    statusText.classList.add('is-live');
+    statusText.classList.remove('is-orange');
+    [headerStatus, sidebarStatus, footerStatus].forEach(el => {
+      if (el) { el.textContent = '● LIVE'; el.style.color = 'var(--live-green)'; }
+    });
+
+    headerCountdown.style.display = 'none';
+    headerLiveMsg.style.display = 'block';
+    countdownFull.style.display = 'none';
+    liveAnnouncement.style.display = 'block';
+
+    // Initialise Twitch embed on first flip to live
+    if (!twitchEmbed) initTwitch();
+
+  } else {
+    // Post-show / archived
+    ['h-days','h-hours','h-mins','h-secs','f-days','f-hours','f-mins','f-secs'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = '00';
+    });
+    dot.classList.remove('is-live');
+    streamDot.classList.remove('is-live');
+    statusText.textContent = 'TRANSMISSION CLOSED';
+    statusText.classList.remove('is-live', 'is-orange');
+    [headerStatus, sidebarStatus, footerStatus].forEach(el => {
+      if (el) { el.textContent = 'ARCHIVED'; el.style.color = 'var(--text-dim)'; }
+    });
+    headerCountdown.style.display = 'none';
+    headerLiveMsg.style.display = 'block';
+    headerLiveMsg.textContent = 'TRANSMISSION CLOSED';
+    headerLiveMsg.style.color = 'var(--text-dim)';
+    headerLiveMsg.style.borderColor = 'var(--border)';
+    countdownFull.style.display = 'none';
+    liveAnnouncement.querySelector('.la-title').textContent = 'TRANSMISSION ARCHIVED';
+    liveAnnouncement.querySelector('.la-sub').textContent = 'THIS OPERATION HAS CONCLUDED — CHECK THE ARCHIVE';
+    liveAnnouncement.style.borderColor = 'var(--border)';
+    liveAnnouncement.querySelector('.la-title').style.color = 'var(--text-dim)';
+    liveAnnouncement.querySelector('.la-label').style.color = 'var(--text-dim)';
+    liveAnnouncement.style.display = 'block';
+  }
+}
+
+// ── Copy link ──
+function copyLink() {
+  const url = window.location.href;
+  navigator.clipboard.writeText(url).then(() => {
+    const el = document.getElementById('copyLinkText');
+    el.textContent = 'COPIED!';
+    setTimeout(() => { el.textContent = 'COPY PAGE LINK'; }, 2000);
+  });
+}
+
+// ── Boot ──
+updateClock();
+updateUI();
+setInterval(updateClock, 1000);
+setInterval(updateUI, 1000);
+
+// Try to init embed immediately in case page loads during live window
+if (getEventState() === 'live') initTwitch();
+
+</script>
+</body>
+</html>

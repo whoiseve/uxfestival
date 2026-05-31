@@ -1,81 +1,1342 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>UX_004</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <!-- Swap fonts if you prefer: Aldrich / PP Supply Mono / Inter -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css" />
-  <link rel="icon" href="favicon.ico" type="image/x-icon">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UX_FESTIVAL // UXMG</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;1,300&family=Bebas+Neue&family=IBM+Plex+Sans+Condensed:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --orange: #FF5500;
+    --orange-dim: #C24100;
+    --orange-glow: rgba(255,85,0,0.15);
+    --black: #080808;
+    --surface: #0e0e0e;
+    --surface-2: #161616;
+    --surface-3: #1e1e1e;
+    --border: rgba(255,255,255,0.07);
+    --border-bright: rgba(255,255,255,0.15);
+    --text: #e8e8e0;
+    --text-dim: rgba(232,232,224,0.45);
+    --text-mid: rgba(232,232,224,0.7);
+    --mono: 'IBM Plex Mono', monospace;
+    --display: 'Bebas Neue', sans-serif;
+    --condensed: 'IBM Plex Sans Condensed', sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.6;
+    cursor: crosshair;
+    overflow-x: hidden;
+  }
+
+  /* ─── SCANLINE OVERLAY ─── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.15) 2px,
+      rgba(0,0,0,0.15) 4px
+    );
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* ─── NOISE TEXTURE ─── */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9998;
+    opacity: 0.4;
+  }
+
+  a { color: inherit; text-decoration: none; }
+  a:focus-visible,
+  button:focus-visible {
+    outline: 1px solid var(--orange);
+    outline-offset: 4px;
+  }
+  button { cursor: crosshair; }
+
+  /* ─── TOP STATUS BAR ─── */
+  .status-bar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 28px;
+    background: var(--black);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    z-index: 1000;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    color: var(--text-dim);
+  }
+  .status-bar .left { display: flex; gap: 24px; align-items: center; }
+  .status-bar .right { display: flex; gap: 20px; align-items: center; }
+  .status-dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--orange);
+    display: inline-block;
+    margin-right: 6px;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+  .status-label { color: var(--orange); }
+  .clock { color: var(--text-mid); font-variant-numeric: tabular-nums; }
+
+  /* ─── NAV ─── */
+  nav {
+    position: fixed;
+    top: 28px; left: 0; right: 0;
+    height: 48px;
+    background: rgba(8,8,8,0.92);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    z-index: 999;
+    backdrop-filter: blur(8px);
+  }
+  .nav-logo {
+    font-family: var(--display);
+    font-size: 22px;
+    letter-spacing: 0.08em;
+    color: var(--text);
+  }
+  .nav-logo span { color: var(--orange); }
+  .nav-links {
+    display: flex;
+    gap: 28px;
+    list-style: none;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    color: var(--text-dim);
+  }
+  .nav-links li a {
+    transition: color 0.2s;
+  }
+  .nav-links li a:hover { color: var(--orange); }
+  .nav-cta {
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    padding: 6px 14px;
+    border: 1px solid var(--orange);
+    color: var(--orange);
+    background: transparent;
+    transition: all 0.2s;
+  }
+  .nav-cta:hover {
+    background: var(--orange);
+    color: var(--black);
+    cursor: crosshair;
+  }
+
+  /* ─── HERO ─── */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 120px 20px 60px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-bg-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+    opacity: 0.38;
+    filter: grayscale(1) contrast(1.18) brightness(0.55);
+    pointer-events: none;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      180deg,
+      rgba(8,8,8,0.35) 0%,
+      rgba(8,8,8,0.58) 52%,
+      rgba(8,8,8,0.92) 100%
+    );
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .hero > *:not(.hero-bg-video):not(.hero-grid):not(.hero-glow):not(.hero-corner):not(.hero-scroll) {
+    position: relative;
+    z-index: 3;
+  }
+
+  /* Animated grid background */
+  .hero-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,85,0,0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,85,0,0.045) 1px, transparent 1px);
+    background-size: 60px 60px;
+    animation: gridShift 20s linear infinite;
+    z-index: 2;
+    pointer-events: none;
+  }
+  @keyframes gridShift {
+    0% { background-position: 0 0; }
+    100% { background-position: 60px 60px; }
+  }
+
+  /* Ambient orange glow */
+  .hero-glow {
+    position: absolute;
+    bottom: -200px; left: 10%;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(255,85,0,0.12) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .hero-corner {
+    position: absolute;
+    top: 76px; right: 20px;
+    width: 200px; height: 200px;
+    border-right: 1px solid var(--border-bright);
+    border-top: 1px solid var(--border-bright);
+    z-index: 2;
+  }
+  .hero-corner::before {
+    content: '';
+    position: absolute;
+    top: 20px; right: 20px;
+    width: 160px; height: 160px;
+    border-right: 1px solid var(--border);
+    border-top: 1px solid var(--border);
+  }
+
+  .hero-node-id {
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--orange);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .hero-node-id::before {
+    content: '';
+    display: block;
+    width: 32px; height: 1px;
+    background: var(--orange);
+  }
+
+  .hero-headline {
+    font-family: var(--display);
+    font-size: clamp(72px, 12vw, 160px);
+    line-height: 0.9;
+    letter-spacing: 0.02em;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+  .hero-headline span { color: var(--orange); }
+
+  .hero-sub {
+    font-family: var(--condensed);
+    font-size: clamp(14px, 2vw, 20px);
+    font-weight: 300;
+    letter-spacing: 0.25em;
+    color: var(--text-dim);
+    margin-bottom: 48px;
+    text-transform: uppercase;
+  }
+
+  .hero-meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0;
+    border: 1px solid var(--border);
+    max-width: 700px;
+  }
+  .hero-meta-cell {
+    padding: 14px 18px;
+    border-right: 1px solid var(--border);
+  }
+  .hero-meta-cell:last-child { border-right: none; }
+  .meta-label {
+    font-size: 8px;
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+  }
+  .meta-value {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--text);
+  }
+  .meta-value.orange { color: var(--orange); }
+
+  .hero-scroll {
+    position: absolute;
+    bottom: 24px; right: 20px;
+    font-size: 8px;
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+    writing-mode: vertical-rl;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 3;
+  }
+  .hero-scroll::after {
+    content: '';
+    width: 1px; height: 48px;
+    background: linear-gradient(var(--text-dim), transparent);
+  }
+
+  /* ─── SECTION STYLES ─── */
+  section {
+    padding: 80px 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 48px;
+  }
+  .section-index {
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--orange);
+    min-width: 48px;
+  }
+  .section-title {
+    font-family: var(--display);
+    font-size: 36px;
+    letter-spacing: 0.06em;
+  }
+  .section-rule {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+    margin-left: 16px;
+  }
+  .section-count {
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    color: var(--text-dim);
+  }
+
+  /* ─── NEXT TRANSMISSION ─── */
+  .next-event {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border: 1px solid var(--border);
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .next-event::before {
+    content: 'NEXT TRANSMISSION';
+    position: absolute;
+    top: 14px; right: 14px;
+    font-size: 8px;
+    letter-spacing: 0.2em;
+    color: var(--orange);
+  }
+  .event-primary {
+    padding: 40px 36px;
+    border-right: 1px solid var(--border);
+  }
+  .event-tag {
+    display: inline-block;
+    font-size: 8px;
+    letter-spacing: 0.2em;
+    padding: 4px 10px;
+    border: 1px solid var(--orange);
+    color: var(--orange);
+    margin-bottom: 20px;
+  }
+  .event-title {
+    font-family: var(--display);
+    font-size: 52px;
+    line-height: 1;
+    letter-spacing: 0.04em;
+    margin-bottom: 8px;
+  }
+  .event-collab {
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    color: var(--text-dim);
+    margin-bottom: 24px;
+  }
+  .event-date-large {
+    font-family: var(--display);
+    font-size: 80px;
+    line-height: 0.9;
+    color: var(--orange);
+    margin-bottom: 4px;
+  }
+  .event-date-label {
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+  }
+  .event-secondary {
+    padding: 40px 36px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .event-data-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+  .event-data-cell {
+    padding: 16px 0 16px 0;
+    border-bottom: 1px solid var(--border);
+    padding-right: 16px;
+  }
+  .event-data-cell:nth-child(even) { padding-right: 0; padding-left: 16px; border-left: 1px solid var(--border); }
+  .event-ctas {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 24px;
+  }
+  .btn-primary {
+    display: block;
+    text-align: center;
+    padding: 12px 20px;
+    background: var(--orange);
+    color: var(--black);
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    font-weight: 600;
+    transition: opacity 0.2s;
+    cursor: crosshair;
+    border: none;
+  }
+  .btn-primary:hover { opacity: 0.85; }
+  .btn-secondary {
+    display: block;
+    text-align: center;
+    padding: 12px 20px;
+    background: transparent;
+    color: var(--text-dim);
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    border: 1px solid var(--border);
+    transition: all 0.2s;
+    cursor: crosshair;
+  }
+  .btn-secondary:hover { border-color: var(--text-mid); color: var(--text); }
+
+  /* Countdown */
+  .countdown {
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--border);
+    margin-top: 40px;
+  }
+  .countdown-unit {
+    flex: 1;
+    text-align: center;
+    padding: 14px 8px;
+    border-right: 1px solid var(--border);
+  }
+  .countdown-unit:last-child { border-right: none; }
+  .countdown-num {
+    font-family: var(--display);
+    font-size: 32px;
+    color: var(--orange);
+    display: block;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .countdown-label {
+    font-size: 7px;
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+    display: block;
+    margin-top: 4px;
+  }
+
+  /* ─── OPERATION ARCHIVE ─── */
+  .operations-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 0;
+    border: 1px solid var(--border);
+  }
+  .op-card {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+    padding: 28px 24px;
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    transition: background 0.3s;
+    cursor: crosshair;
+  }
+  .op-card:hover { background: var(--surface-2); }
+  .op-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 2px; height: 0;
+    background: var(--orange);
+    transition: height 0.3s;
+  }
+  .op-card:hover::before { height: 100%; }
+  .op-id {
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--orange);
+    margin-bottom: 10px;
+  }
+  .op-name {
+    font-family: var(--display);
+    font-size: 26px;
+    letter-spacing: 0.04em;
+    margin-bottom: 8px;
+    line-height: 1;
+  }
+  .op-meta {
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    margin-bottom: 16px;
+  }
+  .op-status {
+    display: inline-block;
+    font-size: 8px;
+    letter-spacing: 0.15em;
+    padding: 3px 8px;
+    border: 1px solid;
+  }
+  .op-status.archived { border-color: var(--text-dim); color: var(--text-dim); }
+  .op-status.upcoming { border-color: var(--orange); color: var(--orange); }
+  .op-status.live { border-color: #00ff88; color: #00ff88; }
+  .op-status.classified {
+    border-color: var(--border-bright);
+    color: var(--border-bright);
+    letter-spacing: 0.3em;
+  }
+
+  /* ─── TELEMETRY TICKER ─── */
+  .telemetry-bar {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 0;
+    overflow: hidden;
+    position: relative;
+  }
+  .telemetry-track {
+    display: flex;
+    gap: 60px;
+    animation: ticker 40s linear infinite;
+    white-space: nowrap;
+    width: max-content;
+  }
+  .telemetry-item {
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .telemetry-item .key { color: var(--orange); }
+  @keyframes ticker {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* ─── FIELD LOGS ─── */
+  .logs-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border: 1px solid var(--border);
+  }
+  .log-entry {
+    display: grid;
+    grid-template-columns: 100px 1fr auto;
+    align-items: center;
+    gap: 24px;
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.2s;
+    cursor: crosshair;
+    color: inherit;
+    text-decoration: none;
+  }
+  .log-entry:last-child { border-bottom: none; }
+  .log-entry:hover { background: var(--surface-2); }
+  .log-date {
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+  }
+  .log-title {
+    font-family: var(--condensed);
+    font-size: 14px;
+    letter-spacing: 0.05em;
+    font-weight: 400;
+  }
+  .log-category {
+    font-size: 8px;
+    letter-spacing: 0.2em;
+    color: var(--orange);
+    text-align: right;
+  }
+
+  /* ─── TEAM / PERSONNEL ─── */
+  .personnel-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0;
+    border: 1px solid var(--border);
+  }
+  .personnel-card {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+    padding: 24px 20px;
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    transition: background 0.2s;
+    cursor: crosshair;
+  }
+  .personnel-card:hover { background: var(--surface-2); }
+  .personnel-avatar {
+    width: 64px;
+    height: 64px;
+    border: 1px solid var(--border);
+    background: var(--surface-3);
+    margin-bottom: 12px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: var(--orange);
+    font-family: var(--display);
+    letter-spacing: 0.05em;
+  }
+  .personnel-avatar img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(1) contrast(1.08);
+    transition: filter 0.3s, transform 0.3s, opacity 0.3s;
+  }
+  .personnel-card:hover .personnel-avatar img {
+    filter: grayscale(0.65) contrast(1.15);
+    transform: scale(1.04);
+  }
+  .personnel-avatar img[src=""],
+  .personnel-avatar img:not([src]) {
+    display: none;
+  }
+  .personnel-name {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    margin-bottom: 4px;
+  }
+  .personnel-role {
+    font-size: 8px;
+    letter-spacing: 0.15em;
+    color: var(--orange);
+    margin-bottom: 8px;
+  }
+  .personnel-spec {
+    font-size: 8px;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+
+  /* ─── JOIN NETWORK ─── */
+  .network-join {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 60px 40px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .network-join::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,85,0,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,85,0,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  .join-title {
+    font-family: var(--display);
+    font-size: 64px;
+    letter-spacing: 0.06em;
+    position: relative;
+    margin-bottom: 12px;
+  }
+  .join-sub {
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+    margin-bottom: 40px;
+    position: relative;
+  }
+  .join-paths {
+    display: flex;
+    gap: 0;
+    justify-content: center;
+    position: relative;
+  }
+  .join-path {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+    padding: 20px 32px;
+    border: 1px solid var(--border);
+    transition: all 0.3s;
+    cursor: crosshair;
+    background: var(--black);
+  }
+  .join-path:hover {
+    border-color: var(--orange);
+    background: rgba(255,85,0,0.04);
+  }
+  .join-path:hover .join-path-label { color: var(--orange); }
+  .join-path-label {
+    font-family: var(--display);
+    font-size: 18px;
+    letter-spacing: 0.1em;
+    margin-bottom: 6px;
+    transition: color 0.3s;
+  }
+  .join-path-desc {
+    font-size: 8px;
+    letter-spacing: 0.15em;
+    color: var(--text-dim);
+  }
+
+  /* ─── FOOTER ─── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 32px 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 24px;
+    align-items: end;
+  }
+  .footer-logo {
+    font-family: var(--display);
+    font-size: 20px;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+  }
+  .footer-logo span { color: var(--orange); }
+  .footer-copy {
+    font-size: 8px;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+  }
+  .footer-links {
+    list-style: none;
+    font-size: 8px;
+    letter-spacing: 0.15em;
+    color: var(--text-dim);
+    line-height: 2.2;
+  }
+  .footer-links a:hover { color: var(--orange); }
+  .footer-signal {
+    text-align: right;
+    font-size: 8px;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+  }
+  .footer-signal .version {
+    font-size: 10px;
+    color: var(--orange);
+    margin-bottom: 4px;
+  }
+
+  /* ─── HIDDEN PAGE TEASER ─── */
+  .classified-block {
+    border: 1px solid rgba(255,85,0,0.2);
+    padding: 24px;
+    background: rgba(255,85,0,0.02);
+    position: relative;
+    cursor: crosshair;
+    transition: background 0.3s;
+  }
+  .classified-block:hover { background: rgba(255,85,0,0.04); }
+  .classified-header {
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--orange);
+    margin-bottom: 12px;
+  }
+  .classified-text {
+    font-family: var(--display);
+    font-size: 28px;
+    letter-spacing: 0.1em;
+    filter: blur(6px);
+    user-select: none;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+    transition: filter 0.5s;
+  }
+  .classified-block:hover .classified-text { filter: blur(3px); }
+  .classified-sub {
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: rgba(255,85,0,0.4);
+  }
+
+  /* ─── ANIMATIONS ─── */
+  @keyframes flicker {
+    0%,95%,100% { opacity: 1; }
+    96% { opacity: 0.7; }
+    97% { opacity: 1; }
+    98% { opacity: 0.5; }
+    99% { opacity: 0.9; }
+  }
+  .hero-headline { animation: flicker 8s infinite; }
+
+  /* ─── SIGNAL LINES ─── */
+  .signal-line {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--orange), transparent);
+    margin: 0;
+    animation: signalSweep 4s ease-in-out infinite;
+    opacity: 0.4;
+  }
+  @keyframes signalSweep {
+    0%,100% { opacity: 0.2; }
+    50% { opacity: 0.6; }
+  }
+
+  .max-w { max-width: 1400px; margin: 0 auto; }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .next-event { grid-template-columns: 1fr; }
+    .event-primary { border-right: none; border-bottom: 1px solid var(--border); }
+    footer { grid-template-columns: 1fr; }
+    .join-paths { flex-direction: column; align-items: center; }
+    .join-path { width: 100%; max-width: 300px; }
+    .hero-headline { font-size: 56px; }
+    .nav-links { display: none; }
+    .log-entry { grid-template-columns: 1fr; gap: 4px; }
+  }
+</style>
 </head>
 <body>
-  <div class="bg-wrap">
-  <video class="bg-media" autoplay muted loop playsinline poster="media/bg_poster.jpg">
-    <source src="media/bg.webm" type="video/webm" />
-    <source src="media/bg.mp4" type="video/mp4" />
-  </video>
-  <div class="bg-overlay"></div>
+
+<!-- STATUS BAR -->
+<div class="status-bar">
+  <div class="left">
+    <span>UX // USER EXPERIENCE MEDIA GROUP</span>
+    <span>GLOBAL EVENT NETWORK</span>
+    <span><span class="status-dot"></span><span class="status-label">ONLINE</span></span>
+    <span>ACTIVE NODE: UX_SOLVANA</span>
+  </div>
+  <div class="right">
+    <span>SIG: <span class="status-label">████████░░</span></span>
+    <span>LAT: 49.2827°N</span>
+    <span class="clock" id="clock">--:--:-- UTC</span>
+  </div>
 </div>
 
-  <main class="page">
-    <section class="countdown-card">
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">UX<span>//</span></div>
+  <ul class="nav-links">
+    <li><a href="#operations">OPERATIONS</a></li>
+    <li><a href="#archive">ARCHIVE</a></li>
+    <li><a href="#field-logs">FIELD LOGS</a></li>
+    <li><a href="#personnel">PERSONNEL</a></li>
+    <li><a href="#network">JOIN</a></li>
+  </ul>
+  <a href="#network" class="nav-cta">APPLY // JOIN</a>
+</nav>
 
-      <p class="eyebrow">INITIALIZING...</p>
-      <h1 class="title">UX_004</h1>
-      <div class="chrome chrome-top">
-    <div class="chrome__stripe"></div>
-    <div class="chrome__meta">
-      <span class="badge">CLEARANCE: LEVEL_2</span>
-      <span class="badge badge--accent">GRID: UX_004</span>
-      <span class="badge">REV: 2025_xx_xx</span>
+<!-- HERO -->
+<section class="hero">
+  <video class="hero-bg-video" autoplay muted loop playsinline preload="metadata" aria-hidden="true">
+    <source src="./img/bg.webm" type="video/webm">
+  </video>
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-corner"></div>
+
+  <div class="hero-node-id">ACTIVE BROADCAST SYSTEM — NODE UX_SOLVANA // 08.01.2026</div>
+  <h1 class="hero-headline">USER<br>E<span>X</span>PERIENCE</h1>
+  <p class="hero-sub">Global Digital Event Infrastructure // Media Production Network</p>
+
+  <div class="hero-meta">
+    <div class="hero-meta-cell">
+      <div class="meta-label">System Status</div>
+      <div class="meta-value orange">PREPARING TRANSMISSION</div>
+    </div>
+    <div class="hero-meta-cell">
+      <div class="meta-label">Next Operation</div>
+      <div class="meta-value">UX × SOLVANA</div>
+    </div>
+    <div class="hero-meta-cell">
+      <div class="meta-label">Transmission Date</div>
+      <div class="meta-value">01 // AUGUST // 2026</div>
+    </div>
+    <div class="hero-meta-cell">
+      <div class="meta-label">Network</div>
+      <div class="meta-value orange">COLLABORATIVE</div>
     </div>
   </div>
 
-      
+  <div class="hero-scroll">SCROLL TO ACCESS SYSTEM</div>
+</section>
 
-      <div class="timer" role="timer" aria-live="polite" aria-label="Countdown to November 21, 2025">
-        <div class="timeblock">
-          <div class="value" id="dd">000</div>
-          <div class="label">days</div>
-        </div>
-        <div class="timeblock">
-          <div class="value" id="hh">00</div>
-          <div class="label">hours</div>
-        </div>
-        <div class="timeblock">
-          <div class="value" id="mm">00</div>
-          <div class="label">minutes</div>
-        </div>
-        <div class="timeblock">
-          <div class="value" id="ss">00</div>
-          <div class="label">seconds</div>
-        </div>
-        <div class="timeblock">
-          <div class="value" id="ms">000</div>
-          <div class="label">ms</div>
-        </div>
-      </div>
-
-      <div class="cta-wrap" aria-label="Links">
-        <a class="btn" href="https://discord.gg/mfmp3Ppn4Z" target="_blank" rel="noopener">Obtain_Clearance</a>
-        <a class="btn" href="https://userexperience.media" target="_blank" rel="noopener">Training_Grounds</a>
-        <a class="btn btn-wide" href="https://twitch.tv/uxfestival" target="_blank" rel="noopener">View_Transmission</a>
-      </div>
-      <div class="chrome chrome-bottom">
-    
-    <div class="chrome__meta">
-      <span class="badge">STATUS: STANDBY</span>
-      <span class="badge">NODE: VAN_BC</span>
-      <span class="badge">PROTO: OFFLINE</span>
-    </div>
-    <div class="chrome__stripe"></div>
+<!-- TELEMETRY TICKER -->
+<div class="telemetry-bar">
+  <div class="telemetry-track">
+    <span class="telemetry-item"><span class="key">EVENT:</span> UX × SOLVANA — 01.08.2026</span>
+    <span class="telemetry-item"><span class="key">STATUS:</span> PREPARING TRANSMISSION</span>
+    <span class="telemetry-item"><span class="key">TOTAL OPERATIONS:</span> 005</span>
+    <span class="telemetry-item"><span class="key">NETWORK:</span> GLOBAL BROADCAST ACTIVE</span>
+    <span class="telemetry-item"><span class="key">UX_005:</span> CLASSIFIED — ANNOUNCEMENT PENDING</span>
+    <span class="telemetry-item"><span class="key">ARCHIVE:</span> UX_001 THROUGH UX_004 ACCESSIBLE</span>
+    <span class="telemetry-item"><span class="key">RENDER PIPELINE:</span> INITIALIZING</span>
+    <span class="telemetry-item"><span class="key">STREAM NODES:</span> 12 ONLINE</span>
+    <!-- Duplicate for seamless loop -->
+    <span class="telemetry-item"><span class="key">EVENT:</span> UX × SOLVANA — 01.08.2026</span>
+    <span class="telemetry-item"><span class="key">STATUS:</span> PREPARING TRANSMISSION</span>
+    <span class="telemetry-item"><span class="key">TOTAL OPERATIONS:</span> 005</span>
+    <span class="telemetry-item"><span class="key">NETWORK:</span> GLOBAL BROADCAST ACTIVE</span>
+    <span class="telemetry-item"><span class="key">UX_005:</span> CLASSIFIED — ANNOUNCEMENT PENDING</span>
+    <span class="telemetry-item"><span class="key">ARCHIVE:</span> UX_001 THROUGH UX_004 ACCESSIBLE</span>
+    <span class="telemetry-item"><span class="key">RENDER PIPELINE:</span> INITIALIZING</span>
+    <span class="telemetry-item"><span class="key">STREAM NODES:</span> 12 ONLINE</span>
   </div>
-    </section>
-  </main>
+</div>
 
-  <script src="./script.js"></script>
+<!-- NEXT TRANSMISSION -->
+<section id="operations">
+  <div class="max-w">
+    <div class="section-header">
+      <span class="section-index">// 01</span>
+      <h2 class="section-title">NEXT TRANSMISSION</h2>
+      <div class="section-rule"></div>
+      <span class="section-count">OPERATION FILE</span>
+    </div>
+
+    <div class="next-event">
+      <div class="event-primary">
+        <div class="event-tag">COLLABORATIVE OPERATION</div>
+        <div class="event-title">UX<br>×<br>SOLVANA</div>
+        <div class="event-collab">USER EXPERIENCE MEDIA GROUP × SOLVANA</div>
+        <div class="event-date-large">01</div>
+        <div class="event-date-label">AUGUST 2026 // DIGITAL BROADCAST</div>
+      </div>
+      <div class="event-secondary">
+        <div class="event-data-grid">
+          <div class="event-data-cell">
+            <div class="meta-label">Classification</div>
+            <div class="meta-value">COLLABORATIVE</div>
+          </div>
+          <div class="event-data-cell">
+            <div class="meta-label">Network</div>
+            <div class="meta-value">SOLVANA LABEL</div>
+          </div>
+          <div class="event-data-cell">
+            <div class="meta-label">Format</div>
+            <div class="meta-value">LIVE BROADCAST</div>
+          </div>
+          <div class="event-data-cell">
+            <div class="meta-label">Node Status</div>
+            <div class="meta-value orange">ACTIVE</div>
+          </div>
+          <div class="event-data-cell" style="grid-column: 1/-1; border-left: none; padding-left: 0;">
+            <div class="meta-label">Operation Notes</div>
+            <div class="meta-value" style="font-size:10px; line-height:1.6; color: var(--text-mid);">
+              A collaborative transmission between User Experience Media Group and Solvana. This operation precedes the flagship UX_005 broadcast.
+            </div>
+          </div>
+        </div>
+        <div class="event-ctas">
+          <a href="https://shop.uxfest.live/" class="btn-primary">ACCESS TICKETS // REGISTER</a>
+          <a href="./UX_X_SOLVANA/index.html" class="btn-secondary">VIEW OPERATION FILE</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Countdown -->
+    <div class="countdown" id="countdown">
+      <div class="countdown-unit">
+        <span class="countdown-num" id="cd-days">--</span>
+        <span class="countdown-label">DAYS</span>
+      </div>
+      <div class="countdown-unit">
+        <span class="countdown-num" id="cd-hours">--</span>
+        <span class="countdown-label">HOURS</span>
+      </div>
+      <div class="countdown-unit">
+        <span class="countdown-num" id="cd-mins">--</span>
+        <span class="countdown-label">MINUTES</span>
+      </div>
+      <div class="countdown-unit">
+        <span class="countdown-num" id="cd-secs">--</span>
+        <span class="countdown-label">SECONDS</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="signal-line"></div>
+
+<!-- OPERATION ARCHIVE -->
+<section id="archive">
+  <div class="max-w">
+    <div class="section-header">
+      <span class="section-index">// 02</span>
+      <h2 class="section-title">OPERATION ARCHIVE</h2>
+      <div class="section-rule"></div>
+      <span class="section-count">5 OPERATIONS</span>
+    </div>
+
+    <div class="operations-grid">
+
+      <!-- UX_005 CLASSIFIED -->
+      <a class="op-card classified-block" href="#archive" aria-label="Open UX_005 operation file">
+        <div class="classified-header">// RESTRICTED ACCESS</div>
+        <div class="op-id">OPERATION: UX_005</div>
+        <div class="classified-text">FLAGSHIP EVENT 2026</div>
+        <div class="classified-sub">ANNOUNCEMENT PENDING — CLEARANCE REQUIRED</div>
+        <div style="margin-top:16px;">
+          <span class="op-status classified">CLASSIFIED</span>
+        </div>
+      </a>
+
+      <!-- UX × SOLVANA -->
+      <a class="op-card" href="./UX_X_SOLVANA/index.html" aria-label="Open UX Solvana operation file">
+        <div class="op-id">OPERATION: UX_SOLVANA</div>
+        <div class="op-name">UX<br>×<br>SOLVANA</div>
+        <div class="op-meta">01 AUGUST 2026 // COLLABORATIVE</div>
+        <div style="margin-top: 16px;"><span class="op-status upcoming">UPCOMING</span></div>
+      </a>
+
+      <!-- UX_004 -->
+      <a class="op-card" href="#archive" aria-label="Open UX_004 operation file">
+        <div class="op-id">OPERATION: UX_004</div>
+        <div class="op-name">UX<br>004</div>
+        <div class="op-meta">2025 // FLAGSHIP EVENT</div>
+        <div style="margin-top: 16px;"><span class="op-status archived">ARCHIVED</span></div>
+      </a>
+
+      <!-- UX_003 -->
+      <a class="op-card" href="#archive" aria-label="Open UX_003 operation file">
+        <div class="op-id">OPERATION: UX_003</div>
+        <div class="op-name">UX<br>003</div>
+        <div class="op-meta">2024 // FLAGSHIP EVENT</div>
+        <div style="margin-top: 16px;"><span class="op-status archived">ARCHIVED</span></div>
+      </a>
+
+      <!-- UX_002 -->
+      <a class="op-card" href="#archive" aria-label="Open UX_002 operation file">
+        <div class="op-id">OPERATION: UX_002</div>
+        <div class="op-name">UX<br>002</div>
+        <div class="op-meta">2023 // FLAGSHIP EVENT</div>
+        <div style="margin-top: 16px;"><span class="op-status archived">ARCHIVED</span></div>
+      </a>
+
+      <!-- UX_001 -->
+      <a class="op-card" href="#archive" aria-label="Open UX_001 operation file">
+        <div class="op-id">OPERATION: UX_001</div>
+        <div class="op-name">UX<br>001</div>
+        <div class="op-meta">2022 // ORIGINAL BROADCAST</div>
+        <div style="margin-top: 16px;"><span class="op-status archived">ARCHIVED</span></div>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<div class="signal-line"></div>
+
+<!-- FIELD LOGS -->
+<section id="field-logs">
+  <div class="max-w">
+    <div class="section-header">
+      <span class="section-index">// 03</span>
+      <h2 class="section-title">FIELD LOGS</h2>
+      <div class="section-rule"></div>
+      <span class="section-count">TRANSMISSION RECORDS</span>
+    </div>
+
+    <div class="logs-list">
+      <a class="log-entry" href="#">
+        <div class="log-date">COMING_SOON</div>
+        <div class="log-title">UX_005???</div>
+        <div class="log-category">COMING_SOON</div>
+      </a>
+      <a class="log-entry" href="#">
+        <div class="log-date">COMING_SOON</div>
+        <div class="log-title">UX_X_SOLVANA: "THE_NODE" (BTS)</div>
+        <div class="log-category">COMING_SOON</div>
+      </a>
+      <a class="log-entry" href="#">
+        <div class="log-date">COMING_SOON</div>
+        <div class="log-title">UX:004: The Future of UXMG</div>
+        <div class="log-category">COMING_SOON</div>
+      </a>
+      <a class="log-entry" href="#">
+
+        <div class="log-date">COMING_SOON</div>
+        <div class="log-title">UX_003: Our First Custom World Design</div>
+        <div class="log-category">COMING_SOON</div>
+      </a>
+      <a class="log-entry" href="#">
+        <div class="log-date">COMING_SOON</div>
+        <div class="log-title">UX_002: The Evolution UXMG (One Year In)</div>
+        <div class="log-category">COMING_SOON</div>
+      </a>
+      <a class="log-entry" href="#">
+        <div class="log-date">COMING_SOON</div>
+        <div class="log-title">UX_001: The Birth of a Global Virtual Festival</div>
+        <div class="log-category">COMING_SOON</div>
+      </a>
+    </div>
+
+  </div>
+</section>
+
+<div class="signal-line"></div>
+
+<!-- PERSONNEL -->
+<section id="personnel">
+  <div class="max-w">
+    <div class="section-header">
+      <span class="section-index">// 04</span>
+      <h2 class="section-title">PERSONNEL FILES</h2>
+      <div class="section-rule"></div>
+      <span class="section-count">NETWORK OPERATORS</span>
+    </div>
+
+    <div class="personnel-grid">
+      <a class="personnel-card" href="https://creator.contact/" target="_blank">
+        <div class="personnel-avatar">
+          <img src="./img/TEAM/architect.jpg" alt="WHOISARCHITECT profile photo" onerror="this.remove()">
+          <span>A</span>
+        </div>
+        <div class="personnel-name">[ WHOISARCHITECT ]</div>
+        <div class="personnel-role">CREATIVE SYSTEMS / OPERATIONS MANAGEMENT</div>
+        <div class="personnel-spec">ACTIVE SINCE: 2022<br>NODE: CREATIVE LEAD</div>
+      </a>
+      <a class="personnel-card" href="https://linktr.ee/eric_holthaus" target="_blank">
+        <div class="personnel-avatar">
+          <img src="./img/TEAM/sauce.png" alt="HOTSAUCE profile photo" onerror="this.remove()">
+          <span>HS</span>
+        </div>
+        <div class="personnel-name">[ HOTSAUCE ]</div>
+        <div class="personnel-role">MEDIA DEVELOPMENT / OPERATIONS MANAGEMENT</div>
+        <div class="personnel-spec">ACTIVE SINCE: 2022<br>NODE: MEDIA | OPERATIONS</div>
+      </a>
+      <a class="personnel-card" href="#">
+        <div class="personnel-avatar">
+          <img src="./img/TEAM/Jamman.gif" alt="JAMMAN profile photo" onerror="this.remove()">
+          <span>J</span>
+        </div>
+        <div class="personnel-name">[ JAMMAN ]</div>
+        <div class="personnel-role">LD | OPERATIONS ASSISTANT</div>
+        <div class="personnel-spec">ACTIVE SINCE: 2023<br>NODE: GRANDMA3 | OPERATIONS</div>
+      </a>
+      <a class="personnel-card" href="#">
+        <div class="personnel-avatar">
+          <img src="./img/TEAM/joydog.png" alt="JOYDOG profile photo" onerror="this.remove()">
+          <span>JD</span>
+        </div>
+        <div class="personnel-name">[ JOYDOG ]</div>
+        <div class="personnel-role">COMMUNITY MANAGEMENT</div>
+        <div class="personnel-spec">ACTIVE SINCE: 2023<br>NODE: COMMUNITY DEVELOPMENT | OPERATIONS</div>
+      </a>
+      <a class="personnel-card" href="#">
+        <div class="personnel-avatar">
+          <img src="./img/TEAM/juke-you.png" alt="JUKE YOU profile photo" onerror="this.remove()">
+          <span>JY</span>
+        </div>
+        <div class="personnel-name">[ JUKE YOU ]</div>
+        <div class="personnel-role">A&R ASSISTANT</div>
+        <div class="personnel-spec">ACTIVE SINCE: 2024<br>NODE: ARTIST MANAGEMENT | OPERATIONS</div>
+      </a>
+      <a class="personnel-card" href="#">
+        <div class="personnel-avatar">
+          <img src="./img/TEAM/vhel.png" alt="VHEL profile photo" onerror="this.remove()">
+          <span>V</span>
+        </div>
+        <div class="personnel-name">[ VHEL ]</div>
+        <div class="personnel-role">OPERATIONS ASSISTANT</div>
+        <div class="personnel-spec">ACTIVE SINCE: 2023<br>NODE: COMMUNITY MANAGEMENT | OPERATIONS</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<div class="signal-line"></div>
+
+<!-- JOIN NETWORK -->
+<section id="network">
+  <div class="max-w">
+    <div class="section-header">
+      <span class="section-index">// 05</span>
+      <h2 class="section-title">JOIN THE NETWORK</h2>
+      <div class="section-rule"></div>
+    </div>
+
+    <div class="network-join">
+      <div class="join-title">REQUEST<br>ACCESS</div>
+      <div class="join-sub">SELECT AN ENTRY POINT TO INITIATE APPLICATION SEQUENCE</div>
+      <div class="join-paths">
+        <a class="join-path" href="https://docs.google.com/forms/d/e/1FAIpQLSdseG0VDnYatQBFwD6uyrup-_Mgcmesx6trQrTgeWD-X6r3Jw/viewform" target="_blank" aria-label="Open artist application page">
+          <div class="join-path-label">ARTIST</div>
+          <div class="join-path-desc">PERFORMANCE UNIT APPLICATION</div>
+        </a>
+        <a class="join-path" href="https://docs.google.com/forms/d/1XTBTTwk9qPZ05eCLi-4B4LjuK2ItHMKJod2VVwp6-Uo/edit" target="_blank" aria-label="Open team application page">
+          <div class="join-path-label">TEAM</div>
+          <div class="join-path-desc">CREW / OPERATOR APPLICATION</div>
+        </a>
+        <a class="join-path" href="https://docs.google.com/forms/d/1jVeQEevkRf7z_cw1EyDbm8wwWdVEU3SiuuRDjVJjs74/edit" target="_blank" aria-label="Open partner and sponsor application page">
+          <div class="join-path-label">PARTNER</div>
+          <div class="join-path-desc">SPONSOR / LABEL ACCESS</div>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <div class="footer-logo">UX<span>//</span></div>
+    <div class="footer-copy">
+      USER EXPERIENCE MEDIA GROUP<br>
+      GLOBAL MEDIA PRODUCTION NETWORK<br>
+      © 2026 ALL RIGHTS RESERVED
+    </div>
+  </div>
+  <ul class="footer-links">
+    <li><a href="#operations">OPERATIONS</a></li>
+    <li><a href="#archive">ARCHIVE</a></li>
+    <li><a href="#field-logs">FIELD LOGS</a></li>
+    <li><a href="#personnel">PERSONNEL</a></li>
+    <li><a href="#network">JOIN NETWORK</a></li>
+  </ul>
+  <div class="footer-signal">
+    <div class="version">NODE: UX_SOLVANA</div>
+    SIGNAL: STABLE<br>
+    UPTIME: <span id="uptime">--</span><br>
+    BUILD: 2026.01<br>
+    <br>
+    <span style="color: var(--orange);">// UX_005 INCOMING</span>
+  </div>
+</footer>
+
+<!-- UX_005 HIDDEN PAGE STUB -->
+<!-- This page exists at ux005.html — populate and make public when ready for announcement -->
+
+<script>
+// Clock
+function updateClock() {
+  const now = new Date();
+  const h = String(now.getUTCHours()).padStart(2,'0');
+  const m = String(now.getUTCMinutes()).padStart(2,'0');
+  const s = String(now.getUTCSeconds()).padStart(2,'0');
+  document.getElementById('clock').textContent = `${h}:${m}:${s} UTC`;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// Countdown to August 1 2026
+function updateCountdown() {
+  const target = new Date('2026-08-01T20:00:00Z');
+  const now = new Date();
+  const diff = target - now;
+  if (diff <= 0) {
+    document.getElementById('cd-days').textContent = '00';
+    document.getElementById('cd-hours').textContent = '00';
+    document.getElementById('cd-mins').textContent = '00';
+    document.getElementById('cd-secs').textContent = '00';
+    return;
+  }
+  const days = Math.floor(diff / (1000*60*60*24));
+  const hours = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
+  const mins = Math.floor((diff % (1000*60*60)) / (1000*60));
+  const secs = Math.floor((diff % (1000*60)) / 1000);
+  document.getElementById('cd-days').textContent = String(days).padStart(2,'0');
+  document.getElementById('cd-hours').textContent = String(hours).padStart(2,'0');
+  document.getElementById('cd-mins').textContent = String(mins).padStart(2,'0');
+  document.getElementById('cd-secs').textContent = String(secs).padStart(2,'0');
+}
+setInterval(updateCountdown, 1000);
+updateCountdown();
+
+// Uptime counter
+const startTime = Date.now();
+setInterval(() => {
+  const elapsed = Math.floor((Date.now() - startTime) / 1000);
+  const h = Math.floor(elapsed/3600);
+  const m = Math.floor((elapsed%3600)/60);
+  const s = elapsed%60;
+  const el = document.getElementById('uptime');
+  if (el) el.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}, 1000);
+
+// Random fake telemetry values
+function fakeTelemetry() {
+  // Could animate fake bandwidth/signal values in status bar here
+}
+</script>
 </body>
 </html>
