@@ -1006,8 +1006,8 @@
           </div>
         </div>
         <div class="event-ctas">
-          <a href="https://shop.uxfest.live/" class="btn-primary">ACCESS TICKETS // REGISTER</a>
-          <a href="./UX_X_SOLVANA/index.html" class="btn-secondary">VIEW OPERATION FILE</a>
+          <a href="https://shop.uxfest.live/" class="btn-primary" target="_blank" rel="noopener noreferrer">ACCESS TICKETS // REGISTER</a>
+          <a href="./UX_X_SOLVANA/" class="btn-secondary">VIEW OPERATION FILE</a>
         </div>
       </div>
     </div>
@@ -1061,7 +1061,7 @@
       </a>
 
       <!-- UX × SOLVANA -->
-      <a class="op-card" href="./UX_X_SOLVANA/index.html" aria-label="Open UX Solvana operation file">
+      <a class="op-card" href="./UX_X_SOLVANA/" aria-label="Open UX Solvana operation file">
         <div class="op-id">OPERATION: UX_SOLVANA</div>
         <div class="op-name">UX<br>×<br>SOLVANA</div>
         <div class="op-meta">01 AUGUST 2026 // COLLABORATIVE</div>
@@ -1166,7 +1166,7 @@
     </div>
 
     <div class="personnel-grid">
-      <a class="personnel-card" href="https://creator.contact/" target="_blank">
+      <a class="personnel-card" href="https://creator.contact/" target="_blank" rel="noopener noreferrer">
         <div class="personnel-avatar">
           <img src="./img/TEAM/architect.jpg" alt="WHOISARCHITECT profile photo" onerror="this.remove()">
           <span>A</span>
@@ -1175,7 +1175,7 @@
         <div class="personnel-role">CREATIVE SYSTEMS / OPERATIONS MANAGEMENT</div>
         <div class="personnel-spec">ACTIVE SINCE: 2022<br>NODE: CREATIVE LEAD</div>
       </a>
-      <a class="personnel-card" href="https://linktr.ee/eric_holthaus" target="_blank">
+      <a class="personnel-card" href="https://linktr.ee/eric_holthaus" target="_blank" rel="noopener noreferrer">
         <div class="personnel-avatar">
           <img src="./img/TEAM/sauce.png" alt="HOTSAUCE profile photo" onerror="this.remove()">
           <span>HS</span>
@@ -1239,15 +1239,15 @@
       <div class="join-title">REQUEST<br>ACCESS</div>
       <div class="join-sub">SELECT AN ENTRY POINT TO INITIATE APPLICATION SEQUENCE</div>
       <div class="join-paths">
-        <a class="join-path" href="https://docs.google.com/forms/d/e/1FAIpQLSdseG0VDnYatQBFwD6uyrup-_Mgcmesx6trQrTgeWD-X6r3Jw/viewform" target="_blank" aria-label="Open artist application page">
+        <a class="join-path" href="https://docs.google.com/forms/d/e/1FAIpQLSdseG0VDnYatQBFwD6uyrup-_Mgcmesx6trQrTgeWD-X6r3Jw/viewform" target="_blank" rel="noopener noreferrer" aria-label="Open artist application page">
           <div class="join-path-label">ARTIST</div>
           <div class="join-path-desc">PERFORMANCE UNIT APPLICATION</div>
         </a>
-        <a class="join-path" href="https://docs.google.com/forms/d/1XTBTTwk9qPZ05eCLi-4B4LjuK2ItHMKJod2VVwp6-Uo/edit" target="_blank" aria-label="Open team application page">
+        <a class="join-path" href="https://docs.google.com/forms/d/1XTBTTwk9qPZ05eCLi-4B4LjuK2ItHMKJod2VVwp6-Uo/edit" target="_blank" rel="noopener noreferrer" aria-label="Open team application page">
           <div class="join-path-label">TEAM</div>
           <div class="join-path-desc">CREW / OPERATOR APPLICATION</div>
         </a>
-        <a class="join-path" href="https://docs.google.com/forms/d/1jVeQEevkRf7z_cw1EyDbm8wwWdVEU3SiuuRDjVJjs74/edit" target="_blank" aria-label="Open partner and sponsor application page">
+        <a class="join-path" href="https://docs.google.com/forms/d/1jVeQEevkRf7z_cw1EyDbm8wwWdVEU3SiuuRDjVJjs74/edit" target="_blank" rel="noopener noreferrer" aria-label="Open partner and sponsor application page">
           <div class="join-path-label">PARTNER</div>
           <div class="join-path-desc">SPONSOR / LABEL ACCESS</div>
         </a>
@@ -1284,7 +1284,7 @@
 </footer>
 
 <!-- UX_005 HIDDEN PAGE STUB -->
-<!-- This page exists at ux005.html — populate and make public when ready for announcement -->
+<!-- Internal event pages should use clean folder URLs, for example ./UX_X_SOLVANA/ instead of ./UX_X_SOLVANA/index.html -->
 
 <script>
 // Clock
@@ -1333,10 +1333,33 @@ setInterval(() => {
   if (el) el.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
 }, 1000);
 
+</script>
+<script>
 // Random fake telemetry values
 function fakeTelemetry() {
   // Could animate fake bandwidth/signal values in status bar here
 }
+
+// Link safety / routing cleanup
+// External links open in a new tab. Internal anchors and internal site pages stay in the current tab.
+document.querySelectorAll('a[href]').forEach((link) => {
+  const href = link.getAttribute('href');
+
+  if (!href || href.startsWith('#') || href.startsWith('./') || href.startsWith('/') || href.startsWith('mailto:')) {
+    return;
+  }
+
+  try {
+    const url = new URL(href, window.location.href);
+
+    if (url.origin !== window.location.origin) {
+      link.setAttribute('target', '_blank');
+      link.setAttribute('rel', 'noopener noreferrer');
+    }
+  } catch (error) {
+    // Leave malformed or placeholder URLs untouched.
+  }
+});
 </script>
 </body>
 </html>
