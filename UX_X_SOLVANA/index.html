@@ -67,7 +67,7 @@
   .status-bar .left { display: flex; gap: 20px; align-items: center; }
   .status-bar .right { display: flex; gap: 20px; align-items: center; }
 
-  /* Live dot — pulses green when live, dim when pre/post show */
+  /* Live dot - pulses green when live, dim when pre/post show */
   .live-dot {
     width: 6px; height: 6px; border-radius: 50%;
     background: var(--text-dim);
@@ -689,7 +689,7 @@
       <div class="stream-embed-wrap" id="streamWrap">
         <!--
           ╔══════════════════════════════════════════════════════════╗
-          ║  TWITCH EMBED — IMPORTANT SETUP NOTE                    ║
+          ║  TWITCH EMBED - IMPORTANT SETUP NOTE                    ║
           ║                                                          ║
           ║  Twitch requires your domain to be on the allowlist.    ║
           ║  Before going live:                                      ║
@@ -704,7 +704,7 @@
         -->
         <div id="twitch-embed"></div>
 
-        <!-- Pre-show placeholder — hidden when Twitch embed initialises -->
+        <!-- Pre-show placeholder - hidden when Twitch embed initialises -->
         <div class="stream-placeholder" id="streamPlaceholder">
           <div class="ph-icon">UX×</div>
           <div class="ph-text">
@@ -902,7 +902,7 @@
     <div class="live-announcement" id="liveAnnouncement">
       <div class="la-label">SYSTEM STATUS</div>
       <div class="la-title">● WE ARE LIVE</div>
-      <div class="la-sub">TRANSMISSION ACTIVE — TUNE IN ABOVE</div>
+      <div class="la-sub">TRANSMISSION ACTIVE - TUNE IN ABOVE</div>
     </div>
   </div>
 
@@ -949,7 +949,7 @@
       <div class="about-tag">// SUPPORT THE NETWORK</div>
       <h2 class="about-heading">KEEP IT<br>RUNNING</h2>
       <div class="about-body">
-        Every event is built from scratch by a dedicated crew. Merch purchases and Patreon memberships go directly into the production — better gear, better streams, more events.
+        Every event is built from scratch by a dedicated crew. Merch purchases and Patreon memberships go directly into the production - better gear, better streams, more events.
       </div>
 
       <div style="display:flex; flex-direction:column; gap:12px; margin-top:8px;">
@@ -1004,26 +1004,26 @@
 <script src="https://embed.twitch.tv/embed/v1.js"></script>
 <script>
 // ═══════════════════════════════════════════════════════════
-// CONFIGURATION — EDIT THESE VALUES FOR EACH EVENT
+// CONFIGURATION - EDIT THESE VALUES FOR EACH EVENT
 // ═══════════════════════════════════════════════════════════
 
 const CONFIG = {
   // EDIT: Your Twitch channel name (no spaces, exact match)
   twitchChannel: 'uxfestival',
 
-  // EDIT: Event start time in UTC — format: 'YYYY-MM-DDTHH:MM:SSZ'
+  // EDIT: Event start time in UTC - format: 'YYYY-MM-DDTHH:MM:SSZ'
   eventStart: '2026-08-01T20:6:30Z',
 
-  // EDIT: Event end time in UTC (approximate — when to flip to "ARCHIVED")
+  // EDIT: Event end time in UTC (approximate - when to flip to "ARCHIVED")
   eventEnd: '2026-08-02T02:12:00Z',
 
-  // EDIT: Your site domain — required by Twitch embed API (no https://, no trailing slash)
+  // EDIT: Your site domain - required by Twitch embed API (no https://, no trailing slash)
   // Example: 'uxfest.live'
   parentDomain: 'uxfest.live',
 };
 
 // ═══════════════════════════════════════════════════════════
-// EVERYTHING BELOW IS AUTOMATIC — NO EDITS NEEDED
+// EVERYTHING BELOW IS AUTOMATIC - NO EDITS NEEDED
 // ═══════════════════════════════════════════════════════════
 
 let twitchEmbed = null;
@@ -1153,7 +1153,7 @@ function updateUI() {
     liveAnnouncement.style.display = 'none';
 
   } else if (state === 'live') {
-    // Live mode — show elapsed instead of countdown
+    // Live mode - show elapsed instead of countdown
     const elapsed = now - start;
     const eh = Math.floor(elapsed / (1000*60*60));
     const em = Math.floor((elapsed % (1000*60*60)) / (1000*60));
@@ -1203,7 +1203,7 @@ function updateUI() {
     headerLiveMsg.style.borderColor = 'var(--border)';
     countdownFull.style.display = 'none';
     liveAnnouncement.querySelector('.la-title').textContent = 'TRANSMISSION ARCHIVED';
-    liveAnnouncement.querySelector('.la-sub').textContent = 'THIS OPERATION HAS CONCLUDED — CHECK THE ARCHIVE';
+    liveAnnouncement.querySelector('.la-sub').textContent = 'THIS OPERATION HAS CONCLUDED - CHECK THE ARCHIVE';
     liveAnnouncement.style.borderColor = 'var(--border)';
     liveAnnouncement.querySelector('.la-title').style.color = 'var(--text-dim)';
     liveAnnouncement.querySelector('.la-label').style.color = 'var(--text-dim)';
