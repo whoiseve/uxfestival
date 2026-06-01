@@ -377,6 +377,38 @@
   .event-primary {
     padding: 40px 36px;
     border-right: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+    min-height: 520px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    isolation: isolate;
+  }
+
+  .event-primary::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: var(--event-bg-image, none);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.22;
+    filter: grayscale(1) contrast(1.15);
+    z-index: -2;
+    pointer-events: none;
+  }
+
+  .event-primary::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(90deg, rgba(8,8,8,0.88) 0%, rgba(8,8,8,0.58) 58%, rgba(8,8,8,0.82) 100%),
+      linear-gradient(180deg, rgba(8,8,8,0.25) 0%, rgba(8,8,8,0.8) 100%);
+    z-index: -1;
+    pointer-events: none;
   }
   .event-tag {
     display: inline-block;
@@ -864,7 +896,7 @@
   /* Responsive */
   @media (max-width: 768px) {
     .next-event { grid-template-columns: 1fr; }
-    .event-primary { border-right: none; border-bottom: 1px solid var(--border); }
+    .event-primary { border-right: none; border-bottom: 1px solid var(--border); min-height: 440px; }
     footer { grid-template-columns: 1fr; }
     .join-paths { flex-direction: column; align-items: center; }
     .join-path { width: 100%; max-width: 300px; }
@@ -973,7 +1005,7 @@
     </div>
 
     <div class="next-event">
-      <div class="event-primary">
+      <div class="event-primary" style="--event-bg-image: url('./img/EVENTS/UX_X_SOLVANA_8K.png');">
         <div class="event-tag">COLLABORATIVE OPERATION</div>
         <div class="event-title">UX<br>×<br>SOLVANA</div>
         <div class="event-collab">USER EXPERIENCE MEDIA GROUP × SOLVANA</div>
