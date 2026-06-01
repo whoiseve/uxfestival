@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;1,300&family=Bebas+Neue&family=IBM+Plex+Sans+Condensed:wght@300;400;500&display=swap" rel="stylesheet">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -893,6 +894,82 @@
 
   .max-w { max-width: 1400px; margin: 0 auto; }
 
+  /* ─── UX PRELOADER ─── */
+  #ux-preloader {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    overflow: hidden;
+    background: #161a1b;
+  }
+
+  #ux-canvas {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  #ux-preloader::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent 0px,
+      transparent 2px,
+      rgba(0,0,0,0.22) 2px,
+      rgba(0,0,0,0.22) 3px
+    );
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  #ux-bar {
+    position: absolute;
+    bottom: 42px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90px;
+    height: 1px;
+    background: rgba(255,255,255,0.06);
+    z-index: 11;
+  }
+
+  #ux-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--orange);
+    box-shadow: 0 0 5px var(--orange);
+  }
+
+  #ux-door-left,
+  #ux-door-right {
+    position: absolute;
+    top: 0;
+    width: 50%;
+    height: 100%;
+    background: #161a1b;
+    z-index: 20;
+    pointer-events: none;
+    opacity: 0;
+  }
+
+  #ux-door-left {
+    left: 0;
+    transform-origin: left center;
+  }
+
+  #ux-door-right {
+    right: 0;
+    transform-origin: right center;
+  }
+
+  .ux-site-loading {
+    overflow: hidden;
+  }
+
   /* Responsive */
   @media (max-width: 768px) {
     .next-event { grid-template-columns: 1fr; }
@@ -906,7 +983,15 @@
   }
 </style>
 </head>
-<body>
+<body class="ux-site-loading">
+
+<!-- UX PRELOADER -->
+<div id="ux-preloader" aria-hidden="true">
+  <canvas id="ux-canvas"></canvas>
+  <div id="ux-bar"><div id="ux-bar-fill"></div></div>
+  <div id="ux-door-left"></div>
+  <div id="ux-door-right"></div>
+</div>
 
 <!-- STATUS BAR -->
 <div class="status-bar">
@@ -1317,6 +1402,442 @@
 
 <!-- UX_005 HIDDEN PAGE STUB -->
 <!-- Internal event pages should use clean folder URLs, for example ./UX_X_SOLVANA/ instead of ./UX_X_SOLVANA/index.html -->
+
+<script>
+(function () {
+  'use strict';
+
+  const preloader = document.getElementById('ux-preloader');
+  const cvs = document.getElementById('ux-canvas');
+  const barFill = document.getElementById('ux-bar-fill');
+
+  if (!preloader || !cvs || !barFill) return;
+
+  const ctx = cvs.getContext('2d');
+  const C_ORANGE = '#f87500';
+  const C_WHITE = '#e9e5e4';
+  const C_BG_MID = '#161a1b';
+  const C_BG_EDG = '#2d2d2d';
+  const STROKE = 5;
+  const SZ = 200;
+
+  let W = 0;
+  let H = 0;
+  let cx = 0;
+  let cy = 0;
+  let loadPct = 0;
+  let visualPct = 0;
+  let assetsReady = false;
+  let revealStarted = false;
+  let animDone = false;
+  let state = 'IDLE';
+  let currentShapeIdx = 0;
+  let nextShapeIdx = 0;
+  let idleTimer = 40;
+  let scrambleTimer = 0;
+  let scrambleFrame = 0;
+  let glitchChar = 'X';
+  let glitchShape = null;
+  let uxRevealFrame = 0;
+  let doorsOpen = false;
+
+  function resize() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = window.innerWidth;
+    H = window.innerHeight;
+    cvs.width = Math.floor(W * dpr);
+    cvs.height = Math.floor(H * dpr);
+    cvs.style.width = W + 'px';
+    cvs.style.height = H + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    cx = W / 2;
+    cy = H / 2;
+  }
+
+  resize();
+  window.addEventListener('resize', resize);
+
+  function rand(a, b) { return a + Math.random() * (b - a); }
+  function randInt(a, b) { return Math.floor(rand(a, b + 1)); }
+  function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+  function drawBG() {
+    const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(W, H) * 0.75);
+    g.addColorStop(0, C_BG_MID);
+    g.addColorStop(1, C_BG_EDG);
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, W, H);
+  }
+
+  function applyStroke(color, width, glow) {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = width || STROKE;
+    ctx.lineCap = 'square';
+    ctx.lineJoin = 'miter';
+    ctx.shadowColor = color;
+    ctx.shadowBlur = glow === false ? 0 : 14;
+  }
+
+  function shapeX(sz, color) {
+    const d = sz * 0.68;
+    applyStroke(color || C_ORANGE, STROKE);
+    ctx.beginPath();
+    ctx.moveTo(cx - d, cy - d); ctx.lineTo(cx + d, cy + d);
+    ctx.moveTo(cx + d, cy - d); ctx.lineTo(cx - d, cy + d);
+    ctx.stroke();
+  }
+
+  function shapePlus(sz, color) {
+    applyStroke(color || C_ORANGE, STROKE);
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - sz); ctx.lineTo(cx, cy + sz);
+    ctx.moveTo(cx - sz, cy); ctx.lineTo(cx + sz, cy);
+    ctx.stroke();
+  }
+
+  function shapeSquare(sz, color) {
+    applyStroke(color || C_ORANGE, STROKE);
+    ctx.beginPath();
+    ctx.rect(cx - sz * 0.75, cy - sz * 0.75, sz * 1.5, sz * 1.5);
+    ctx.stroke();
+  }
+
+  function shapeCircle(sz, color) {
+    applyStroke(color || C_ORANGE, STROKE);
+    ctx.beginPath();
+    ctx.arc(cx, cy, sz * 0.78, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
+  function shapeTri(sz, color) {
+    applyStroke(color || C_ORANGE, STROKE);
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - sz);
+    ctx.lineTo(cx + sz * 0.9, cy + sz * 0.6);
+    ctx.lineTo(cx - sz * 0.9, cy + sz * 0.6);
+    ctx.closePath();
+    ctx.stroke();
+  }
+
+  function shapeDiamond(sz, color) {
+    applyStroke(color || C_ORANGE, STROKE);
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - sz);
+    ctx.lineTo(cx + sz, cy);
+    ctx.lineTo(cx, cy + sz);
+    ctx.lineTo(cx - sz, cy);
+    ctx.closePath();
+    ctx.stroke();
+  }
+
+  function shapeStar(sz, color) {
+    applyStroke(color || C_ORANGE, STROKE);
+    const n = 5;
+    ctx.beginPath();
+    for (let i = 0; i < n * 2; i++) {
+      const a = (i / (n * 2)) * Math.PI * 2 - Math.PI / 2;
+      const r = i % 2 === 0 ? sz : sz * 0.42;
+      i === 0 ? ctx.moveTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r) : ctx.lineTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r);
+    }
+    ctx.closePath();
+    ctx.stroke();
+  }
+
+  function shapeHex(sz, color) {
+    applyStroke(color || C_ORANGE, STROKE);
+    ctx.beginPath();
+    for (let i = 0; i < 6; i++) {
+      const a = (i / 6) * Math.PI * 2 - Math.PI / 6;
+      i === 0 ? ctx.moveTo(cx + Math.cos(a) * sz * 0.82, cy + Math.sin(a) * sz * 0.82) : ctx.lineTo(cx + Math.cos(a) * sz * 0.82, cy + Math.sin(a) * sz * 0.82);
+    }
+    ctx.closePath();
+    ctx.stroke();
+  }
+
+  function shapeGlyph(char, sz, color) {
+    ctx.save();
+    ctx.shadowColor = color || C_ORANGE;
+    ctx.shadowBlur = 14;
+    ctx.fillStyle = color || C_ORANGE;
+    ctx.font = `900 ${sz * 2.1}px "Arial Black", "Arial", sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(char, cx, cy);
+    ctx.restore();
+  }
+
+  const SHAPE_FNS = [
+    { draw: sz => shapeX(sz) },
+    { draw: sz => shapePlus(sz) },
+    { draw: sz => shapeSquare(sz) },
+    { draw: sz => shapeCircle(sz) },
+    { draw: sz => shapeTri(sz) },
+    { draw: sz => shapeDiamond(sz) },
+    { draw: sz => shapeStar(sz) },
+    { draw: sz => shapeHex(sz) }
+  ];
+
+  const GLITCH_CHARS = ['X','+','#','@','%','&','*','?','!','/','>','<','▲','■','●','◆','★','A','B','E','F','H','M','N','R','T','V','W','Z','0','1','2','3','4','5','6','7','8','9','∆','Ω','Σ','Ψ','Φ','Λ','|','[',']','{','}','\\','^','~'];
+
+  function randomShapeIdx(exclude) {
+    let idx;
+    do { idx = randInt(0, SHAPE_FNS.length - 1); } while (idx === exclude);
+    return idx;
+  }
+
+  function randomIdleDuration() { return randInt(28, 90); }
+
+  function triggerScramble() {
+    nextShapeIdx = randomShapeIdx(currentShapeIdx);
+    scrambleTimer = randInt(18, 34);
+    scrambleFrame = 0;
+    state = 'SCRAMBLE';
+  }
+
+  function setBar(v) {
+    loadPct = Math.min(100, Math.max(0, v));
+    barFill.style.width = loadPct + '%';
+  }
+
+  function drawTears(intensity) {
+    const n = randInt(2, Math.max(2, Math.floor(6 * intensity)));
+    for (let i = 0; i < n; i++) {
+      const y = rand(cy - SZ * 1.1, cy + SZ * 1.1);
+      const h = rand(1, 4 * intensity);
+      const dx = (Math.random() < 0.5 ? -1 : 1) * rand(10, 55 * intensity);
+      try {
+        const d = ctx.getImageData(0, y, W, h);
+        ctx.putImageData(d, dx, y);
+      } catch (e) {}
+    }
+  }
+
+  function drawBlockNoise(intensity) {
+    const n = randInt(1, Math.max(1, Math.floor(5 * intensity)));
+    for (let i = 0; i < n; i++) {
+      ctx.fillStyle = Math.random() < 0.6 ? `rgba(248,${randInt(60,140)},0,${rand(0.3,0.9)})` : `rgba(255,255,255,${rand(0.03,0.12)})`;
+      ctx.fillRect(cx + rand(-SZ, SZ), cy + rand(-SZ, SZ), rand(6, 50 * intensity), rand(1, 5));
+    }
+  }
+
+  function getUXMeasure() {
+    const fs = SZ * 2.0;
+    ctx.save();
+    ctx.font = `900 ${fs}px "Arial Black", "Arial", sans-serif`;
+    const mU = ctx.measureText('U').width;
+    const mX = ctx.measureText('X').width;
+    ctx.restore();
+    return { fs, mU, mX };
+  }
+
+  function getXNaturalOffset() {
+    return getUXMeasure().mU / 2;
+  }
+
+  function drawUX(alpha, uOffX, xExtraOffX) {
+    const { fs, mU, mX } = getUXMeasure();
+    ctx.save();
+    ctx.font = `900 ${fs}px "Arial Black", "Arial", sans-serif`;
+    ctx.textBaseline = 'middle';
+    ctx.textAlign = 'left';
+    const totalW = mU + mX;
+    const startX = cx - totalW / 2;
+    ctx.globalAlpha = alpha;
+    ctx.shadowColor = C_WHITE;
+    ctx.shadowBlur = 16;
+    ctx.fillStyle = C_WHITE;
+    ctx.fillText('U', startX + uOffX, cy);
+    ctx.shadowColor = C_ORANGE;
+    ctx.shadowBlur = 20;
+    ctx.fillStyle = C_ORANGE;
+    ctx.fillText('X', startX + mU + xExtraOffX, cy);
+    ctx.restore();
+  }
+
+  function drawXOnly() {
+    const { fs } = getUXMeasure();
+    ctx.save();
+    ctx.font = `900 ${fs}px "Arial Black", "Arial", sans-serif`;
+    ctx.textBaseline = 'middle';
+    ctx.textAlign = 'center';
+    ctx.shadowColor = C_ORANGE;
+    ctx.shadowBlur = 24;
+    ctx.fillStyle = C_ORANGE;
+    ctx.fillText('X', cx, cy);
+    ctx.restore();
+  }
+
+  function easeInExpo(t) {
+    return t === 0 ? 0 : Math.pow(2, 10 * t - 10);
+  }
+
+  function kickReveal() {
+    if (revealStarted) return;
+    revealStarted = true;
+    setBar(100);
+    state = 'REVEAL_SCRAMBLE';
+    scrambleFrame = 0;
+    scrambleTimer = randInt(28, 40);
+  }
+
+  function openDoors() {
+    const dL = document.getElementById('ux-door-left');
+    const dR = document.getElementById('ux-door-right');
+    dL.style.opacity = '1';
+    dR.style.opacity = '1';
+    dL.style.clipPath = 'polygon(0% 0%, 100% 0%, 50% 50%, 100% 100%, 0% 100%)';
+    dR.style.clipPath = 'polygon(100% 0%, 0% 0%, 50% 50%, 0% 100%, 100% 100%)';
+
+    setTimeout(() => {
+      const done = () => {
+        preloader.style.display = 'none';
+        document.body.classList.remove('ux-site-loading');
+        animDone = true;
+      };
+
+      if (window.anime) {
+        window.anime({ targets: dL, translateX: [0, -(W * 0.6)], duration: 820, easing: 'easeInOutQuart' });
+        window.anime({ targets: dR, translateX: [0, W * 0.6], duration: 820, easing: 'easeInOutQuart', complete: done });
+        window.anime({ targets: cvs, opacity: [1, 0], duration: 600, easing: 'easeInQuart', delay: 100 });
+      } else {
+        dL.style.transition = 'transform 820ms cubic-bezier(.76,0,.24,1)';
+        dR.style.transition = 'transform 820ms cubic-bezier(.76,0,.24,1)';
+        cvs.style.transition = 'opacity 600ms ease';
+        dL.style.transform = `translateX(${-W * 0.6}px)`;
+        dR.style.transform = `translateX(${W * 0.6}px)`;
+        cvs.style.opacity = '0';
+        setTimeout(done, 900);
+      }
+    }, 280);
+  }
+
+  function frame() {
+    if (animDone) return;
+    requestAnimationFrame(frame);
+    drawBG();
+
+    if (state === 'IDLE') {
+      SHAPE_FNS[currentShapeIdx].draw(SZ);
+      idleTimer--;
+      if (idleTimer <= 0) {
+        if (assetsReady || loadPct >= 98) kickReveal();
+        else triggerScramble();
+      }
+    } else if (state === 'SCRAMBLE') {
+      scrambleFrame++;
+      if (scrambleFrame % randInt(1, 3) === 0) {
+        glitchChar = pick(GLITCH_CHARS);
+        glitchShape = Math.random() < 0.45 ? SHAPE_FNS[randInt(0, SHAPE_FNS.length - 1)].draw : null;
+      }
+      if (glitchShape && Math.random() < 0.5) glitchShape(SZ * rand(0.7, 1.1), Math.random() < 0.3 ? '#ffffff' : C_ORANGE);
+      else shapeGlyph(glitchChar, SZ * rand(0.38, 0.52), Math.random() < 0.25 ? '#ffffff' : C_ORANGE);
+      drawTears(rand(0.6, 1.4));
+      drawBlockNoise(rand(0.6, 1.2));
+      scrambleTimer--;
+      if (scrambleTimer <= 0) {
+        currentShapeIdx = nextShapeIdx;
+        state = 'IDLE';
+        idleTimer = randomIdleDuration();
+      }
+    } else if (state === 'REVEAL_SCRAMBLE') {
+      scrambleFrame++;
+      if (scrambleFrame % 2 === 0) {
+        glitchChar = pick(GLITCH_CHARS);
+        glitchShape = SHAPE_FNS[randInt(0, SHAPE_FNS.length - 1)].draw;
+      }
+      const col = pick(['#f87500','#ff2200','#ffffff','#ffcc00','#f87500','#f87500']);
+      if (Math.random() < 0.5 && glitchShape) glitchShape(SZ * rand(0.6, 1.15), col);
+      else shapeGlyph(glitchChar, SZ * rand(0.38, 0.52), col);
+      drawTears(rand(1.2, 2.2));
+      drawBlockNoise(rand(1.0, 2.0));
+      scrambleTimer--;
+      if (scrambleTimer <= 0) {
+        state = 'REVEAL_UX';
+        uxRevealFrame = 0;
+      }
+    } else if (state === 'REVEAL_UX') {
+      uxRevealFrame++;
+      const PHASE1 = 8;
+      const PHASE2 = 38;
+      if (uxRevealFrame <= PHASE1) {
+        if (uxRevealFrame % 3 !== 1) {
+          drawUX(uxRevealFrame / PHASE1, 0, 0);
+          drawTears(0.5);
+          drawBlockNoise(0.4);
+        }
+      } else if (uxRevealFrame <= PHASE1 + PHASE2) {
+        const t = (uxRevealFrame - PHASE1) / PHASE2;
+        const ease = easeInExpo(t);
+        drawUX(1, -ease * (cx + 200), ease * (0 - getXNaturalOffset()));
+      } else {
+        drawXOnly();
+        if (!doorsOpen) {
+          doorsOpen = true;
+          openDoors();
+        }
+      }
+    }
+  }
+
+  function watchPageAssets() {
+    const images = Array.from(document.images || []);
+    const videos = Array.from(document.querySelectorAll('video'));
+    const total = Math.max(1, images.length + videos.length);
+    let done = 0;
+
+    function markDone() {
+      done++;
+      visualPct = Math.min(100, Math.round((done / total) * 100));
+      setBar(Math.min(95, visualPct));
+      if (done >= total) {
+        assetsReady = true;
+        setTimeout(() => kickReveal(), 250);
+      }
+    }
+
+    images.forEach((img) => {
+      if (img.complete && img.naturalWidth > 0) markDone();
+      else if (img.decode) img.decode().then(markDone).catch(markDone);
+      else {
+        img.addEventListener('load', markDone, { once: true });
+        img.addEventListener('error', markDone, { once: true });
+      }
+    });
+
+    videos.forEach((video) => {
+      if (video.readyState >= 3) markDone();
+      else {
+        video.addEventListener('canplay', markDone, { once: true });
+        video.addEventListener('loadeddata', markDone, { once: true });
+        video.addEventListener('error', markDone, { once: true });
+      }
+    });
+  }
+
+  const fakeProgress = setInterval(() => {
+    const target = assetsReady ? 100 : 82;
+    const next = loadPct + (target - loadPct) * 0.055 + 0.3;
+    setBar(next);
+    if (loadPct >= 100) clearInterval(fakeProgress);
+  }, 80);
+
+  window.addEventListener('load', () => {
+    assetsReady = true;
+    setBar(100);
+    setTimeout(() => kickReveal(), 250);
+  });
+
+  setTimeout(() => {
+    if (!assetsReady) {
+      assetsReady = true;
+      kickReveal();
+    }
+  }, 8000);
+
+  watchPageAssets();
+  requestAnimationFrame(frame);
+})();
+</script>
 
 <script>
 // Clock
